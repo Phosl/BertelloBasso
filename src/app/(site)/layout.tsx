@@ -1,13 +1,6 @@
 import type {ReactNode} from "react";
-import {SiteFooter} from "@/components/layout/SiteFooter";
-import {SiteHeader} from "@/components/layout/SiteHeader";
+import {PublicShell} from "@/components/layout/PublicShell";
 
 export default function SiteLayout({children}: {children: ReactNode}) {
-  return (
-    <>
-      <SiteHeader />
-      <main id="main-content">{children}</main>
-      <SiteFooter />
-    </>
-  );
+  return <PublicShell locale="it">{children}</PublicShell>;
 }

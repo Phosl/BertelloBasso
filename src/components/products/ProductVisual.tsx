@@ -1,13 +1,18 @@
 import type {Product} from "@/lib/content/types";
 import {brand} from "@/lib/brand";
+import type {Locale} from "@/lib/i18n/config";
+import {getMessages} from "@/lib/i18n/messages";
 
 export function ProductVisual({
   product,
   compact = false,
+  locale = "it",
 }: {
   product: Product;
   compact?: boolean;
+  locale?: Locale;
 }) {
+  const messages = getMessages(locale);
   const isBottle = ["oil", "white-wine", "red-wine", "gin"].includes(
     product.visual,
   );
@@ -15,7 +20,7 @@ export function ProductVisual({
 
   return (
     <div
-      aria-label={`Confezione illustrata di ${product.name}`}
+      aria-label={`${messages.products.packageLabel} ${product.name}`}
       className={`product-visual product-visual--${product.visual} ${
         compact ? "is-compact" : ""
       }`}
@@ -31,7 +36,7 @@ export function ProductVisual({
               <small>{brand.name}</small>
               <strong>{product.name}</strong>
               <i>{product.eyebrow}</i>
-              <em>Umbria · Italia</em>
+              <em>{messages.products.visual.country}</em>
             </span>
           </span>
         </div>
@@ -42,8 +47,8 @@ export function ProductVisual({
           <span className="product-jar__glass">
             <span className="product-label">
               <small>{brand.name}</small>
-              <strong>Salse</strong>
-              <i>piccanti</i>
+              <strong>{messages.products.visual.sauceTitle}</strong>
+              <i>{messages.products.visual.sauceSubtitle}</i>
             </span>
           </span>
         </div>
@@ -54,9 +59,11 @@ export function ProductVisual({
           <span className="product-label">
             <small>{brand.name}</small>
             <strong>
-              {product.visual === "tomato-chips" ? "Pomodoro" : "Semi & polenta"}
+              {product.visual === "tomato-chips"
+                ? messages.products.visual.tomato
+                : messages.products.visual.seedsPolenta}
             </strong>
-            <i>chips croccanti</i>
+            <i>{messages.products.visual.chips}</i>
           </span>
         </div>
       ) : null}

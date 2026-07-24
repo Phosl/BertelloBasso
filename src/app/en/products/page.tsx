@@ -2,15 +2,15 @@ import {ProductsPageView} from "@/components/pages/ProductsPageView";
 import {getMessages} from "@/lib/i18n/messages";
 import {localizedMetadata} from "@/lib/i18n/metadata";
 
-const copy = getMessages("it").products;
+const copy = getMessages("en").products;
 
 export const metadata = localizedMetadata({
-  locale: "it",
+  locale: "en",
   route: "products",
   title: copy.metadataTitle,
   description: copy.metadataDescription,
 });
 
-export default function ProductsPage() {
-  return <ProductsPageView locale="it" />;
+export default function EnglishProductsPage() {
+  return <ProductsPageView locale="en" />;
 }

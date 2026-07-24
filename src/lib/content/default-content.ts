@@ -21,6 +21,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 1,
     visual: "oil",
     accent: "#8d8a3f",
+    translations: {
+      en: {
+        name: "Extra Virgin Olive Oil",
+        eyebrow: "Our family harvest",
+        description:
+          "A bright, fragrant Umbrian olive oil, made from olives picked in our fields and milled within hours of harvesting.",
+      },
+    },
   },
   {
     id: "mitera-bianco",
@@ -37,6 +45,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 2,
     visual: "white-wine",
     accent: "#b8a56e",
+    translations: {
+      en: {
+        name: "MITERA",
+        eyebrow: "Grechetto · Umbria IGT",
+        description:
+          "A white wine born in our hills: luminous and textured, with the quiet freshness of the landscape around Todi.",
+      },
+    },
   },
   {
     id: "mitera-rosso",
@@ -53,6 +69,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 3,
     visual: "red-wine",
     accent: "#6f1f2f",
+    translations: {
+      en: {
+        name: "MITERA red",
+        eyebrow: "Umbrian red wine",
+        description:
+          "Deep and made for the table, it holds the warmest side of our land. The first vintage is still resting.",
+      },
+    },
   },
   {
     id: "gintaglia",
@@ -69,6 +93,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 4,
     visual: "gin",
     accent: "#405f54",
+    translations: {
+      en: {
+        name: "Gintaglia",
+        eyebrow: "Farm gin",
+        description:
+          "A dry, botanical spirit shaped by the wild aromas that grow along the edges of our fields.",
+      },
+    },
   },
   {
     id: "salse-piccanti",
@@ -85,6 +117,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 5,
     visual: "sauce",
     accent: "#a13a23",
+    translations: {
+      en: {
+        name: "Hot sauces",
+        eyebrow: "Chilies from our garden",
+        description:
+          "Small batches, different levels of heat and recognisable ingredients. Made to brighten a dish, never overpower it.",
+      },
+    },
   },
   {
     id: "chips-pomodoro",
@@ -101,6 +141,14 @@ export const defaultProducts: Product[] = [
     sortOrder: 6,
     visual: "tomato-chips",
     accent: "#bb4d35",
+    translations: {
+      en: {
+        name: "Tomato chips",
+        eyebrow: "Slowly dried",
+        description:
+          "Concentrated tomato flavour, crisp and naturally savoury. A whole harvest in one bite.",
+      },
+    },
   },
   {
     id: "chips-semi-polenta",
@@ -117,24 +165,45 @@ export const defaultProducts: Product[] = [
     sortOrder: 7,
     visual: "polenta-chips",
     accent: "#c29c3e",
+    translations: {
+      en: {
+        name: "Seed & polenta chips",
+        eyebrow: "Crisp and made for sharing",
+        description:
+          "Thin sheets of corn and seeds, baked until light, rustic and irresistible.",
+      },
+    },
   },
 ];
 
-export const defaultSiteCopy: SiteCopy = {
-  heroKicker: `Azienda agricola · ${brand.location}`,
-  heroTitle: "Coltiviamo cose buone. Con il tempo che serve.",
-  heroBody:
-    "Olio, vino e piccole produzioni di dispensa nate sulle colline umbre, tra gesti di famiglia e curiosità contemporanea.",
-  storyTitle: "Una casa, due persone, molte stagioni.",
-  storyBody:
-    `${brand.name} è un progetto agricolo di famiglia a ${brand.location}. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.`,
-  contactEmail: brand.email,
-  contactPhone: "+39 000 000 0000",
+export const defaultSiteCopyByLocale: Record<"it" | "en", SiteCopy> = {
+  it: {
+    heroKicker: `Azienda agricola · ${brand.location}`,
+    heroTitle: "Coltiviamo cose buone. Con il tempo che serve.",
+    heroBody:
+      "Olio, vino e piccole produzioni di dispensa nate sulle colline umbre, tra gesti di famiglia e curiosità contemporanea.",
+    storyTitle: "Una casa, due persone, molte stagioni.",
+    storyBody:
+      `${brand.name} è un progetto agricolo di famiglia a ${brand.location}. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.`,
+    contactEmail: brand.email,
+    contactPhone: "+39 000 000 0000",
+  },
+  en: {
+    heroKicker: `Family farm · ${brand.location}`,
+    heroTitle: "We grow good things. Giving them all the time they need.",
+    heroBody:
+      "Olive oil, wine and small-batch pantry specialties born in the Umbrian hills, shaped by family knowledge and contemporary curiosity.",
+    storyTitle: "One home, two people, many seasons.",
+    storyBody:
+      `${brand.name} is a family farming project in ${brand.location}. We follow the rhythm of the fields, make everything in small batches and share each product transparently, from plant to table.`,
+    contactEmail: brand.email,
+    contactPhone: "+39 000 000 0000",
+  },
 };
 
 export const defaultSnapshot: AdminSnapshot = {
   products: defaultProducts,
-  siteCopy: defaultSiteCopy,
+  siteCopy: defaultSiteCopyByLocale,
   inquiries: [
     {
       id: "inq-01",

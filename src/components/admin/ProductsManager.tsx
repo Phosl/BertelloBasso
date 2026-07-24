@@ -21,7 +21,9 @@ export function ProductsManager() {
     const query = search.trim().toLowerCase();
     if (!query) return data.products;
     return data.products.filter((product) =>
-      `${product.name} ${product.eyebrow} ${product.category}`
+      `${product.name} ${product.eyebrow} ${product.category} ${
+        product.translations.en?.name ?? ""
+      } ${product.translations.en?.eyebrow ?? ""}`
         .toLowerCase()
         .includes(query),
     );

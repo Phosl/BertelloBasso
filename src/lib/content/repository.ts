@@ -2,8 +2,15 @@ import "server-only";
 
 import {cache} from "react";
 import {createClient} from "@supabase/supabase-js";
-import {defaultProducts, defaultSiteCopy} from "./default-content";
+import {
+  defaultProducts,
+  defaultSiteCopyByLocale,
+} from "./default-content";
+import {localizeProduct} from "./localize";
+import {mapProductRecord} from "./product-mapper";
 import type {Product, SiteCopy} from "./types";
+import type {Locale} from "@/lib/i18n/config";
+import {isMissingSchemaError} from "@/lib/supabase/errors";
 
 function getPublicClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,17 +19,35 @@ function getPublicClient() {
   return createClient(url, key, {auth: {persistSession: false}});
 }
 
-export const getProducts = cache(async (): Promise<Product[]> => {
-  const client = getPublicClient();
-  if (!client) return defaultProducts.filter((product) => product.published);
+const productFields =
+  "id, slug, name, eyebrow, description, category, status, formats, featured, published, sort_order, visual, accent";
 
-  const {data, error} = await client
+export const getProducts = cache(async (locale: Locale = "it"): Promise<Product[]> => {
+  const client = getPublicClient();
+  const defaultPublished = defaultProducts
+    .filter((product) => product.published)
+    .map((product) => localizeProduct(product, locale));
+  if (!client) return defaultPublished;
+
+  const localizedResult = await client
     .from("products")
     .select(
-      "id, slug, name, eyebrow, description, category, status, formats, featured, published, sort_order, visual, accent",
+      `${productFields}, translations`,
     )
     .eq("published", true)
     .order("sort_order");
+  let data = localizedResult.data as Array<Record<string, unknown>> | null;
+  let error = localizedResult.error;
+
+  if (isMissingSchemaError(error)) {
+    const legacyResult = await client
+      .from("products")
+      .select(productFields)
+      .eq("published", true)
+      .order("sort_order");
+    data = legacyResult.data as Array<Record<string, unknown>> | null;
+    error = legacyResult.error;
+  }
 
   if (error) {
     console.error({
@@ -31,29 +56,50 @@ export const getProducts = cache(async (): Promise<Product[]> => {
       resource: "products",
       code: error.code,
     });
-    return defaultProducts.filter((product) => product.published);
+    return defaultPublished;
   }
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    eyebrow: row.eyebrow,
-    description: row.description,
-    category: row.category,
-    status: row.status,
-    formats: row.formats as Product["formats"],
-    featured: row.featured,
-    published: row.published,
-    sortOrder: row.sort_order,
-    visual: row.visual,
-    accent: row.accent,
-  })) as Product[];
+  return (data ?? []).map((row) =>
+    localizeProduct(
+      mapProductRecord(row),
+      locale,
+    ),
+  );
 });
 
-export const getSiteCopy = cache(async (): Promise<SiteCopy> => {
+export const getSiteCopy = cache(async (locale: Locale = "it"): Promise<SiteCopy> => {
   const client = getPublicClient();
-  if (!client) return defaultSiteCopy;
+  const fallback = defaultSiteCopyByLocale[locale];
+  if (!client) return fallback;
+
+  if (locale === "en") {
+    const {data, error} = await client
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["site_copy", "site_copy_en"]);
+
+    if (error) {
+      console.error({
+        scope: "public_content",
+        operation: "select",
+        resource: "site_settings",
+        code: error.code,
+      });
+      return fallback;
+    }
+
+    const settings = new Map(
+      (data ?? []).map((row) => [row.key, row.value as Partial<SiteCopy>]),
+    );
+    const italian = settings.get("site_copy");
+    const english = settings.get("site_copy_en");
+    return {
+      ...fallback,
+      ...english,
+      contactEmail: italian?.contactEmail ?? fallback.contactEmail,
+      contactPhone: italian?.contactPhone ?? fallback.contactPhone,
+    };
+  }
 
   const {data, error} = await client
     .from("site_settings")
@@ -70,8 +116,8 @@ export const getSiteCopy = cache(async (): Promise<SiteCopy> => {
         code: error.code,
       });
     }
-    return defaultSiteCopy;
+    return fallback;
   }
 
-  return {...defaultSiteCopy, ...(data.value as Partial<SiteCopy>)};
+  return {...fallback, ...(data.value as Partial<SiteCopy>)};
 });

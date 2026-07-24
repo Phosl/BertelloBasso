@@ -3,18 +3,20 @@
 import {useState} from "react";
 import {Check, LoaderCircle, Send} from "lucide-react";
 import {z} from "zod";
-
-const contactSchema = z.object({
-  name: z.string().trim().min(2, "Inserisci il tuo nome."),
-  email: z.string().trim().email("Inserisci un indirizzo email valido."),
-  subject: z.string().trim().min(2, "Scegli o scrivi un argomento."),
-  message: z.string().trim().min(10, "Scrivi almeno 10 caratteri."),
-  privacy: z.literal(true, {error: "È necessario accettare l’informativa."}),
-});
+import type {Locale} from "@/lib/i18n/config";
+import {getMessages} from "@/lib/i18n/messages";
 
 type FormState = "idle" | "sending" | "success" | "error";
 
-export function ContactForm() {
+export function ContactForm({locale}: {locale: Locale}) {
+  const copy = getMessages(locale).form;
+  const contactSchema = z.object({
+    name: z.string().trim().min(2, copy.validation.name),
+    email: z.string().trim().email(copy.validation.email),
+    subject: z.string().trim().min(2, copy.validation.subject),
+    message: z.string().trim().min(10, copy.validation.message),
+    privacy: z.literal(true, {error: copy.validation.privacy}),
+  });
   const [state, setState] = useState<FormState>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState("");
@@ -39,7 +41,7 @@ export function ContactForm() {
       });
       setErrors(nextErrors);
       setState("error");
-      setNotice("Controlla i campi evidenziati.");
+      setNotice(copy.invalidNotice);
       return;
     }
 
@@ -56,10 +58,10 @@ export function ContactForm() {
       if (!response.ok) throw new Error("request_failed");
       form.reset();
       setState("success");
-      setNotice("Grazie. Il tuo messaggio è stato affidato alla nostra dispensa.");
+      setNotice(copy.successNotice);
     } catch {
       setState("error");
-      setNotice("Il messaggio non è partito. Riprova oppure scrivici via email.");
+      setNotice(copy.errorNotice);
     }
   }
 
@@ -67,11 +69,11 @@ export function ContactForm() {
     return (
       <div aria-live="polite" className="form-success" role="status">
         <span><Check aria-hidden="true" size={22} /></span>
-        <p className="eyebrow">Messaggio inviato</p>
-        <h2>Ci sentiamo presto.</h2>
+        <p className="eyebrow">{copy.successKicker}</p>
+        <h2>{copy.successTitle}</h2>
         <p>{notice}</p>
         <button onClick={() => setState("idle")} type="button">
-          Invia un altro messaggio
+          {copy.sendAnother}
         </button>
       </div>
     );
@@ -81,53 +83,52 @@ export function ContactForm() {
     <form className="contact-form" noValidate onSubmit={handleSubmit}>
       <div className="form-row">
         <label>
-          <span>Nome e cognome *</span>
+          <span>{copy.name} *</span>
           <input
             aria-describedby={errors.name ? "name-error" : undefined}
             aria-invalid={Boolean(errors.name)}
             name="name"
-            placeholder="Come ti chiami?"
+            placeholder={copy.namePlaceholder}
           />
           {errors.name ? <small id="name-error">{errors.name}</small> : null}
         </label>
         <label>
-          <span>Email *</span>
+          <span>{copy.email} *</span>
           <input
             aria-describedby={errors.email ? "email-error" : undefined}
             aria-invalid={Boolean(errors.email)}
             inputMode="email"
             name="email"
-            placeholder="nome@email.it"
+            placeholder="name@email.com"
             type="email"
           />
           {errors.email ? <small id="email-error">{errors.email}</small> : null}
         </label>
       </div>
       <label>
-        <span>Parliamo di *</span>
+        <span>{copy.subject} *</span>
         <select
           aria-describedby={errors.subject ? "subject-error" : undefined}
           aria-invalid={Boolean(errors.subject)}
           defaultValue=""
           name="subject"
         >
-          <option disabled value="">Scegli un argomento</option>
-          <option value="Visita e degustazione">Visita e degustazione</option>
-          <option value="Acquisto prodotti">Acquisto prodotti</option>
-          <option value="Rivenditori e ristorazione">Rivenditori e ristorazione</option>
-          <option value="Altro">Altro</option>
+          <option disabled value="">{copy.chooseSubject}</option>
+          {copy.subjects.map((subject) => (
+            <option key={subject} value={subject}>{subject}</option>
+          ))}
         </select>
         {errors.subject ? (
           <small id="subject-error">{errors.subject}</small>
         ) : null}
       </label>
       <label>
-        <span>Messaggio *</span>
+        <span>{copy.message} *</span>
         <textarea
           aria-describedby={errors.message ? "message-error" : undefined}
           aria-invalid={Boolean(errors.message)}
           name="message"
-          placeholder="Raccontaci come possiamo aiutarti…"
+          placeholder={copy.messagePlaceholder}
           rows={6}
         />
         {errors.message ? (
@@ -141,10 +142,7 @@ export function ContactForm() {
           name="privacy"
           type="checkbox"
         />
-        <span>
-          Acconsento al trattamento dei dati per ricevere risposta alla mia
-          richiesta.
-        </span>
+        <span>{copy.privacy}</span>
       </label>
       {errors.privacy ? (
         <small id="privacy-error">{errors.privacy}</small>
@@ -156,7 +154,7 @@ export function ContactForm() {
           ) : (
             <Send aria-hidden="true" size={17} />
           )}
-          {state === "sending" ? "Invio in corso…" : "Invia il messaggio"}
+          {state === "sending" ? copy.sending : copy.send}
         </button>
         {notice ? (
           <p aria-live="polite" className="form-notice" role="status">

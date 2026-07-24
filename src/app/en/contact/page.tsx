@@ -2,15 +2,15 @@ import {ContactPageView} from "@/components/pages/ContactPageView";
 import {getMessages} from "@/lib/i18n/messages";
 import {localizedMetadata} from "@/lib/i18n/metadata";
 
-const copy = getMessages("it").contact;
+const copy = getMessages("en").contact;
 
 export const metadata = localizedMetadata({
-  locale: "it",
+  locale: "en",
   route: "contact",
   title: copy.metadataTitle,
   description: copy.metadataDescription,
 });
 
-export default function ContactPage() {
-  return <ContactPageView locale="it" />;
+export default function EnglishContactPage() {
+  return <ContactPageView locale="en" />;
 }

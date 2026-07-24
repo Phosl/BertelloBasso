@@ -10,12 +10,14 @@ import {
   useState,
 } from "react";
 import {defaultSnapshot} from "@/lib/content/default-content";
+import {mapProductRecord} from "@/lib/content/product-mapper";
 import type {
   AdminSnapshot,
   Inquiry,
   Product,
   SiteCopy,
 } from "@/lib/content/types";
+import type {Locale} from "@/lib/i18n/config";
 import {getAdminErrorMessage} from "@/lib/supabase/errors";
 import {
   getBrowserSupabase,
@@ -35,7 +37,7 @@ type AdminDataContextValue = {
   refresh: () => Promise<void>;
   resetDemo: () => void;
   updateProduct: (id: string, patch: Partial<Product>) => Promise<boolean>;
-  updateSiteCopy: (copy: SiteCopy) => Promise<boolean>;
+  updateSiteCopy: (locale: Locale, copy: SiteCopy) => Promise<boolean>;
   updateInquiry: (
     id: string,
     status: Inquiry["status"],
@@ -46,24 +48,6 @@ const AdminDataContext = createContext<AdminDataContextValue | null>(null);
 
 function saveLocal(snapshot: AdminSnapshot) {
   window.localStorage.setItem(storageKey, JSON.stringify(snapshot));
-}
-
-function mapProductRow(row: Record<string, unknown>): Product {
-  return {
-    id: String(row.id),
-    slug: String(row.slug),
-    name: String(row.name),
-    eyebrow: String(row.eyebrow),
-    description: String(row.description),
-    category: row.category as Product["category"],
-    status: row.status as Product["status"],
-    formats: row.formats as Product["formats"],
-    featured: Boolean(row.featured),
-    published: Boolean(row.published),
-    sortOrder: Number(row.sort_order),
-    visual: row.visual as Product["visual"],
-    accent: String(row.accent),
-  };
 }
 
 function toProductRow(product: Product) {
@@ -81,7 +65,52 @@ function toProductRow(product: Product) {
     sort_order: product.sortOrder,
     visual: product.visual,
     accent: product.accent,
+    translations: product.translations,
     updated_at: new Date().toISOString(),
+  };
+}
+
+function normalizeLocalSnapshot(value: unknown): AdminSnapshot {
+  if (!value || typeof value !== "object") return defaultSnapshot;
+  const snapshot = value as {
+    products?: Array<Record<string, unknown>>;
+    siteCopy?: Record<string, unknown>;
+    inquiries?: Inquiry[];
+  };
+  const products = Array.isArray(snapshot.products)
+    ? snapshot.products.map((product) =>
+        mapProductRecord(product),
+      )
+    : defaultSnapshot.products;
+  const storedCopy = snapshot.siteCopy ?? {};
+  const isLegacyCopy = "heroTitle" in storedCopy;
+  const italianCopy = {
+    ...defaultSnapshot.siteCopy.it,
+    ...(
+      isLegacyCopy
+        ? (storedCopy as Partial<SiteCopy>)
+        : (storedCopy.it as Partial<SiteCopy> | undefined)
+    ),
+  };
+
+  return {
+    products,
+    siteCopy: {
+      it: italianCopy,
+      en: {
+        ...defaultSnapshot.siteCopy.en,
+        ...(
+          isLegacyCopy
+            ? {}
+            : (storedCopy.en as Partial<SiteCopy> | undefined)
+        ),
+        contactEmail: italianCopy.contactEmail,
+        contactPhone: italianCopy.contactPhone,
+      },
+    },
+    inquiries: Array.isArray(snapshot.inquiries)
+      ? snapshot.inquiries
+      : defaultSnapshot.inquiries,
   };
 }
 
@@ -99,7 +128,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
     if (!configured) {
       try {
         const stored = window.localStorage.getItem(storageKey);
-        if (stored) setData(JSON.parse(stored) as AdminSnapshot);
+        if (stored) setData(normalizeLocalSnapshot(JSON.parse(stored)));
       } catch {
         setNotice(
           "I dati locali non erano leggibili: è stato caricato il contenuto iniziale.",
@@ -121,9 +150,8 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         client.from("products").select("*").order("sort_order"),
         client
           .from("site_settings")
-          .select("value")
-          .eq("key", "site_copy")
-          .maybeSingle(),
+          .select("key, value")
+          .in("key", ["site_copy", "site_copy_en"]),
         client
           .from("inquiries")
           .select("id, created_at, name, email, subject, message, status")
@@ -140,13 +168,31 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
       return;
     }
 
+    const siteSettings = new Map(
+      (settingsResult.data ?? []).map((row) => [row.key, row.value]),
+    );
+
     setData({
       products: (productsResult.data ?? []).map((row) =>
-        mapProductRow(row as Record<string, unknown>),
+        mapProductRecord(row as Record<string, unknown>),
       ),
       siteCopy: {
-        ...defaultSnapshot.siteCopy,
-        ...(settingsResult.data?.value as Partial<SiteCopy> | undefined),
+        it: {
+          ...defaultSnapshot.siteCopy.it,
+          ...(siteSettings.get("site_copy") as Partial<SiteCopy> | undefined),
+        },
+        en: {
+          ...defaultSnapshot.siteCopy.en,
+          ...(siteSettings.get("site_copy_en") as Partial<SiteCopy> | undefined),
+          contactEmail:
+            (
+              siteSettings.get("site_copy") as Partial<SiteCopy> | undefined
+            )?.contactEmail ?? defaultSnapshot.siteCopy.it.contactEmail,
+          contactPhone:
+            (
+              siteSettings.get("site_copy") as Partial<SiteCopy> | undefined
+            )?.contactPhone ?? defaultSnapshot.siteCopy.it.contactPhone,
+        },
       },
       inquiries: (inquiriesResult.data ?? []).map((row) => ({
         id: row.id,
@@ -211,8 +257,23 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
   );
 
   const updateSiteCopy = useCallback(
-    async (copy: SiteCopy) => {
-      const next = {...data, siteCopy: copy};
+    async (locale: Locale, copy: SiteCopy) => {
+      const siteCopy =
+        locale === "it"
+          ? {
+              ...data.siteCopy,
+              it: copy,
+              en: {
+                ...data.siteCopy.en,
+                contactEmail: copy.contactEmail,
+                contactPhone: copy.contactPhone,
+              },
+            }
+          : {...data.siteCopy, en: copy};
+      const next = {
+        ...data,
+        siteCopy,
+      };
       setData(next);
       setSaveState("saving");
       setNotice("");
@@ -227,7 +288,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
       const {error} = await getBrowserSupabase()!
         .from("site_settings")
         .upsert({
-          key: "site_copy",
+          key: locale === "it" ? "site_copy" : "site_copy_en",
           value: copy,
           updated_at: new Date().toISOString(),
         });

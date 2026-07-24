@@ -1,8 +1,10 @@
 import type {Metadata} from "next";
+import {headers} from "next/headers";
 import {DM_Mono, Manrope} from "next/font/google";
 import "@/app/globals.css";
 import {PageTransitionProvider} from "@/components/transitions/PageTransitionProvider";
 import {brand} from "@/lib/brand";
+import {getMessages} from "@/lib/i18n/messages";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -27,14 +29,18 @@ export const metadata: Metadata = {
     "Olio, vino e piccole produzioni agricole da San Damiano di Todi, nel cuore dell’Umbria.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{children: React.ReactNode}>) {
+  const requestHeaders = await headers();
+  const locale = requestHeaders.get("x-site-locale") === "en" ? "en" : "it";
+  const copy = getMessages(locale);
+
   return (
-    <html lang="it">
+    <html lang={locale}>
       <body className={`${manrope.variable} ${dmMono.variable}`}>
         <a className="skip-link" href="#main-content">
-          Vai al contenuto
+          {copy.skipToContent}
         </a>
         <PageTransitionProvider>{children}</PageTransitionProvider>
       </body>

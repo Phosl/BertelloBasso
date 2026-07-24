@@ -11,10 +11,10 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const {slug} = await params;
-  const product = (await getProducts("it")).find((item) => item.slug === slug);
+  const product = (await getProducts("en")).find((item) => item.slug === slug);
   if (!product) return {};
   return localizedMetadata({
-    locale: "it",
+    locale: "en",
     route: "products",
     productSlug: product.slug,
     title: product.name,
@@ -26,7 +26,7 @@ export async function generateStaticParams() {
   return (await getProducts("it")).map((product) => ({slug: product.slug}));
 }
 
-export default async function ProductDetailPage({params}: PageProps) {
+export default async function EnglishProductDetailPage({params}: PageProps) {
   const {slug} = await params;
-  return <ProductDetailPageView locale="it" slug={slug} />;
+  return <ProductDetailPageView locale="en" slug={slug} />;
 }

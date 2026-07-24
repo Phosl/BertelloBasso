@@ -1,9 +1,17 @@
+import type {Locale} from "@/lib/i18n/config";
+
 export type ProductCategory = "olio" | "vino" | "distillati" | "dispensa";
 export type ProductStatus = "available" | "coming_soon" | "seasonal";
 
 export type ProductFormat = {
   label: string;
   price?: number;
+};
+
+export type ProductTranslation = {
+  name: string;
+  eyebrow: string;
+  description: string;
 };
 
 export type Product = {
@@ -20,6 +28,7 @@ export type Product = {
   sortOrder: number;
   visual: "oil" | "white-wine" | "red-wine" | "gin" | "sauce" | "tomato-chips" | "polenta-chips";
   accent: string;
+  translations: Partial<Record<Exclude<Locale, "it">, ProductTranslation>>;
 };
 
 export type SiteCopy = {
@@ -44,6 +53,6 @@ export type Inquiry = {
 
 export type AdminSnapshot = {
   products: Product[];
-  siteCopy: SiteCopy;
+  siteCopy: Record<Locale, SiteCopy>;
   inquiries: Inquiry[];
 };

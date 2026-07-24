@@ -1,16 +1,14 @@
-import {FeaturedProducts} from "@/components/sections/FeaturedProducts";
-import {HomeHero} from "@/components/sections/HomeHero";
-import {HomeStory} from "@/components/sections/HomeStory";
-import {getProducts, getSiteCopy} from "@/lib/content/repository";
+import {HomePageView} from "@/components/pages/HomePageView";
+import {localizedMetadata} from "@/lib/i18n/metadata";
 
-export default async function HomePage() {
-  const [products, copy] = await Promise.all([getProducts(), getSiteCopy()]);
+export const metadata = localizedMetadata({
+  locale: "it",
+  route: "home",
+  title: "Azienda agricola a San Damiano di Todi",
+  description:
+    "Olio, vino e piccole produzioni agricole da San Damiano di Todi, nel cuore dell’Umbria.",
+});
 
-  return (
-    <>
-      <HomeHero copy={copy} />
-      <FeaturedProducts products={products} />
-      <HomeStory copy={copy} />
-    </>
-  );
+export default function HomePage() {
+  return <HomePageView locale="it" />;
 }

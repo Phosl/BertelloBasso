@@ -121,6 +121,10 @@ h4 {
   text-transform: uppercase;
 }
 
+.i18n-lines {
+  white-space: pre-line;
+}
+
 .transition-shell,
 .transition-page {
   min-height: 100vh;
@@ -224,6 +228,41 @@ h4 {
 .desktop-nav a[aria-current="page"]::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.site-header__actions {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-self: end;
+}
+
+.language-switch {
+  align-items: center;
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  gap: 6px;
+  letter-spacing: 0.08em;
+}
+
+.language-switch span {
+  opacity: 0.45;
+}
+
+.language-switch i {
+  font-style: normal;
+  opacity: 0.3;
+}
+
+.language-switch strong {
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.language-switch:hover strong,
+.language-switch:focus-visible strong {
+  color: var(--clay);
 }
 
 .menu-toggle {
@@ -2050,6 +2089,73 @@ h4 {
   margin-top: 6px;
 }
 
+.admin-language-tabs {
+  align-items: center;
+  background: #e9e5d9;
+  border: 1px solid #d7d0bd;
+  border-radius: 5px;
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  padding: 4px;
+}
+
+.admin-language-tabs button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  color: #777a6f;
+  display: inline-flex;
+  font-size: 10px;
+  gap: 10px;
+  min-height: 35px;
+  padding: 8px 14px;
+}
+
+.admin-language-tabs button span,
+.admin-translation-group legend span {
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+.admin-language-tabs button[aria-pressed="true"] {
+  background: var(--white);
+  box-shadow: 0 1px 5px rgba(31, 35, 29, 0.08);
+  color: var(--ink);
+}
+
+.admin-translation-group {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-translation-group + .admin-translation-group {
+  border-top: 1px solid #d9dcd3;
+  margin-top: 4px;
+  padding-top: 20px;
+}
+
+.admin-translation-group legend {
+  color: var(--olive);
+  font-size: 11px;
+  font-weight: 650;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.admin-translation-group legend span {
+  border: 1px solid #d2d5ca;
+  border-radius: 2px;
+  float: right;
+  padding: 3px 5px;
+}
+
 .content-editor {
   display: grid;
   gap: 14px;
@@ -2071,6 +2177,12 @@ h4 {
   letter-spacing: 0;
   text-align: right;
   text-transform: none;
+}
+
+.content-editor__shared-note > p {
+  color: #777d74;
+  font-size: 11px;
+  line-height: 1.6;
 }
 
 .content-editor__actions {

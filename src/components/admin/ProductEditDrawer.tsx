@@ -27,6 +27,11 @@ export function ProductEditDrawer({
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const english = {
+      name: String(form.get("nameEn")),
+      eyebrow: String(form.get("eyebrowEn")),
+      description: String(form.get("descriptionEn")),
+    };
     const success = await onSave(product.id, {
       name: String(form.get("name")),
       eyebrow: String(form.get("eyebrow")),
@@ -35,6 +40,10 @@ export function ProductEditDrawer({
       featured: form.get("featured") === "on",
       published: form.get("published") === "on",
       accent: String(form.get("accent")),
+      translations: {
+        ...product.translations,
+        en: english,
+      },
     });
     if (success) onClose();
   }
@@ -66,23 +75,54 @@ export function ProductEditDrawer({
           <ProductVisual compact product={product} />
         </div>
         <form key={product.id} onSubmit={save}>
-          <label>
-            <span>Nome</span>
-            <input defaultValue={product.name} name="name" required />
-          </label>
-          <label>
-            <span>Sottotitolo</span>
-            <input defaultValue={product.eyebrow} name="eyebrow" required />
-          </label>
-          <label>
-            <span>Descrizione</span>
-            <textarea
-              defaultValue={product.description}
-              name="description"
-              required
-              rows={5}
-            />
-          </label>
+          <fieldset className="admin-translation-group">
+            <legend>Italiano <span>IT</span></legend>
+            <label>
+              <span>Nome</span>
+              <input defaultValue={product.name} name="name" required />
+            </label>
+            <label>
+              <span>Sottotitolo</span>
+              <input defaultValue={product.eyebrow} name="eyebrow" required />
+            </label>
+            <label>
+              <span>Descrizione</span>
+              <textarea
+                defaultValue={product.description}
+                name="description"
+                required
+                rows={5}
+              />
+            </label>
+          </fieldset>
+          <fieldset className="admin-translation-group">
+            <legend>English <span>EN</span></legend>
+            <label>
+              <span>Name</span>
+              <input
+                defaultValue={product.translations.en?.name ?? ""}
+                name="nameEn"
+                required
+              />
+            </label>
+            <label>
+              <span>Subtitle</span>
+              <input
+                defaultValue={product.translations.en?.eyebrow ?? ""}
+                name="eyebrowEn"
+                required
+              />
+            </label>
+            <label>
+              <span>Description</span>
+              <textarea
+                defaultValue={product.translations.en?.description ?? ""}
+                name="descriptionEn"
+                required
+                rows={5}
+              />
+            </label>
+          </fieldset>
           <div className="admin-form-row">
             <label>
               <span>Disponibilità</span>

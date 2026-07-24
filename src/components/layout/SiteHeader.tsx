@@ -6,20 +6,32 @@ import gsap from "gsap";
 import {Menu, X} from "lucide-react";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {brand} from "@/lib/brand";
+import type {Locale} from "@/lib/i18n/config";
+import {getMessages} from "@/lib/i18n/messages";
+import {
+  languageSwitchPath,
+  publicPath,
+} from "@/lib/i18n/routing";
 
-const links = [
-  {href: "/prodotti", label: "Prodotti"},
-  {href: "/storia", label: "La nostra storia"},
-  {href: "/contatti", label: "Visite & contatti"},
-];
-
-export function SiteHeader() {
+export function SiteHeader({locale}: {locale: Locale}) {
   const pathname = usePathname();
+  const copy = getMessages(locale);
+  const otherLocale: Locale = locale === "it" ? "en" : "it";
+  const links = [
+    {
+      href: publicPath(locale, "products"),
+      label: copy.navigation.products,
+    },
+    {href: publicPath(locale, "story"), label: copy.navigation.story},
+    {href: publicPath(locale, "contact"), label: copy.navigation.contact},
+  ];
+  const homeHref = publicPath(locale, "home");
+  const languageHref = languageSwitchPath(pathname, otherLocale);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => setOpen(false), [setOpen]);
 
   useEffect(() => {
     const menu = menuRef.current;
@@ -108,13 +120,13 @@ export function SiteHeader() {
         <TransitionLink
           aria-label={`${brand.name}, home`}
           className="wordmark"
-          href="/"
+          href={homeHref}
           onClick={close}
         >
           <span>{brand.wordmarkTop}</span>
           <strong>{brand.wordmarkBottom}</strong>
         </TransitionLink>
-        <nav aria-label="Navigazione principale" className="desktop-nav">
+        <nav aria-label={copy.navigation.mainLabel} className="desktop-nav">
           {links.map((link) => (
             <TransitionLink
               aria-current={
@@ -129,22 +141,35 @@ export function SiteHeader() {
             </TransitionLink>
           ))}
         </nav>
-        <button
-          aria-controls="mobile-menu"
-          aria-expanded={open}
-          aria-label="Apri il menu"
-          className="menu-toggle"
-          onClick={() => setOpen(true)}
-          ref={toggleRef}
-          type="button"
-        >
-          <Menu aria-hidden="true" size={22} />
-        </button>
+        <div className="site-header__actions">
+          <TransitionLink
+            aria-label={copy.navigation.switchLanguage}
+            className="language-switch"
+            href={languageHref}
+            hrefLang={otherLocale}
+            transitionLabel={copy.otherLanguageName}
+          >
+            <span>{copy.languageShort}</span>
+            <i aria-hidden="true">/</i>
+            <strong>{copy.otherLanguageShort}</strong>
+          </TransitionLink>
+          <button
+            aria-controls="mobile-menu"
+            aria-expanded={open}
+            aria-label={copy.navigation.openMenu}
+            className="menu-toggle"
+            onClick={() => setOpen(true)}
+            ref={toggleRef}
+            type="button"
+          >
+            <Menu aria-hidden="true" size={22} />
+          </button>
+        </div>
       </header>
 
       <div
         aria-hidden={!open}
-        aria-label="Menu di navigazione"
+        aria-label={copy.navigation.dialogLabel}
         aria-modal="true"
         className="mobile-menu"
         id="mobile-menu"
@@ -154,7 +179,7 @@ export function SiteHeader() {
         <div className="mobile-menu__top" data-menu-item>
           <span>{brand.name}</span>
           <button
-            aria-label="Chiudi il menu"
+            aria-label={copy.navigation.closeMenu}
             onClick={close}
             ref={closeRef}
             type="button"
@@ -162,8 +187,8 @@ export function SiteHeader() {
             <X aria-hidden="true" size={24} />
           </button>
         </div>
-        <nav aria-label="Navigazione mobile">
-          <TransitionLink data-menu-item href="/" onClick={close}>
+        <nav aria-label={copy.navigation.mobileLabel}>
+          <TransitionLink data-menu-item href={homeHref} onClick={close}>
             <small>00</small>
             <strong>Home</strong>
           </TransitionLink>
@@ -183,7 +208,7 @@ export function SiteHeader() {
         <div className="mobile-menu__foot" data-menu-item>
           <span>42.78° N · 12.41° E</span>
           <TransitionLink href="/admin" onClick={close}>
-            Area riservata
+            {copy.navigation.reserved}
           </TransitionLink>
         </div>
       </div>
