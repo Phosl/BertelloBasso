@@ -35,7 +35,7 @@ export function AdminLogin() {
   return (
     <main className="admin-login">
       <div className="admin-login__art" aria-hidden="true">
-        <span>P</span><i /><span>C</span>
+        <span>B</span><i /><span>B</span>
         <small>Umbria · Italia</small>
       </div>
       <div className="admin-login__panel">

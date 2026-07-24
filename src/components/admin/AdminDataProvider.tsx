@@ -22,7 +22,7 @@ import {
   isSupabaseConfigured,
 } from "@/lib/supabase/browser";
 
-const storageKey = "pian-della-carlotta-admin-demo-v1";
+const storageKey = "bertello-basso-admin-demo-v1";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 

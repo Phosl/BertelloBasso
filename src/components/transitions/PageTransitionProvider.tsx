@@ -10,6 +10,7 @@ import {
   useRef,
 } from "react";
 import gsap from "gsap";
+import {brand} from "@/lib/brand";
 
 type TransitionContextValue = {
   navigate: (href: string, label?: string) => void;
@@ -32,7 +33,7 @@ function isAdminPath(path: string) {
 }
 
 function labelFromPath(path: string) {
-  const value = path.split("/").filter(Boolean).at(-1) ?? "Pian della Carlotta";
+  const value = path.split("/").filter(Boolean).at(-1) ?? brand.name;
   return decodeURIComponent(value).replaceAll("-", " ");
 }
 
@@ -196,11 +197,11 @@ export function PageTransitionProvider({children}: {children: ReactNode}) {
         </div>
         <div aria-hidden="true" className="transition-veil" ref={veilRef}>
           <div className="transition-veil__meta">
-            <span>Pian della Carlotta</span>
-            <span>Umbria · Italia</span>
+            <span>{brand.name}</span>
+            <span>{brand.location} · Umbria</span>
           </div>
           <span className="transition-veil__label" ref={labelRef}>
-            Pian della Carlotta
+            {brand.name}
           </span>
           <span className="transition-veil__line">
             <span ref={lineRef} />

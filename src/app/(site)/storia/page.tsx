@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {ArrowDownRight, Sprout, SunMedium, Waves} from "lucide-react";
 import {SectionReveal} from "@/components/ui/SectionReveal";
 import {getSiteCopy} from "@/lib/content/repository";
+import {brand} from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "La nostra storia",
@@ -26,7 +27,7 @@ export default async function StoryPage() {
       <SectionReveal className="story-manifesto">
         <span className="story-manifesto__number">01</span>
         <div>
-          <p className="eyebrow">Pian della Carlotta</p>
+          <p className="eyebrow">{brand.name}</p>
           <h2>{copy.storyTitle}</h2>
           <p>{copy.storyBody}</p>
         </div>
@@ -62,7 +63,7 @@ export default async function StoryPage() {
       </section>
       <section className="story-place">
         <div>
-          <p className="eyebrow">Todi · Umbria</p>
+          <p className="eyebrow">{brand.location} · Umbria</p>
           <h2>Nel centro d’Italia,<br />un po’ fuori strada.</h2>
         </div>
         <p>

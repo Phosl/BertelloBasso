@@ -1,4 +1,5 @@
 import type {Product} from "@/lib/content/types";
+import {brand} from "@/lib/brand";
 
 export function ProductVisual({
   product,
@@ -27,7 +28,7 @@ export function ProductVisual({
           <span className="product-bottle__neck" />
           <span className="product-bottle__body">
             <span className="product-label">
-              <small>Pian della Carlotta</small>
+              <small>{brand.name}</small>
               <strong>{product.name}</strong>
               <i>{product.eyebrow}</i>
               <em>Umbria · Italia</em>
@@ -40,7 +41,7 @@ export function ProductVisual({
           <span className="product-jar__lid" />
           <span className="product-jar__glass">
             <span className="product-label">
-              <small>Pian della Carlotta</small>
+              <small>{brand.name}</small>
               <strong>Salse</strong>
               <i>piccanti</i>
             </span>
@@ -51,7 +52,7 @@ export function ProductVisual({
         <div className="product-bag">
           <span className="product-bag__seam" />
           <span className="product-label">
-            <small>Pian della Carlotta</small>
+            <small>{brand.name}</small>
             <strong>
               {product.visual === "tomato-chips" ? "Pomodoro" : "Semi & polenta"}
             </strong>

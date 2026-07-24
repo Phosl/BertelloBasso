@@ -230,12 +230,12 @@ insert into public.site_settings (key, value)
 values (
   'site_copy',
   jsonb_build_object(
-    'heroKicker', 'Azienda agricola · Todi, Umbria',
+    'heroKicker', 'Azienda agricola · San Damiano di Todi',
     'heroTitle', 'Coltiviamo cose buone. Con il tempo che serve.',
     'heroBody', 'Olio, vino e piccole produzioni di dispensa nate sulle colline umbre, tra gesti di famiglia e curiosità contemporanea.',
     'storyTitle', 'Una casa, due persone, molte stagioni.',
-    'storyBody', 'Pian della Carlotta è un progetto agricolo di famiglia. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.',
-    'contactEmail', 'ciao@piandellacarlotta.it',
+    'storyBody', 'Bertello Basso è un progetto agricolo di famiglia a San Damiano di Todi. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.',
+    'contactEmail', 'info@bertellobasso.it',
     'contactPhone', '+39 000 000 0000'
   )
 );

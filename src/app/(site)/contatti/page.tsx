@@ -2,11 +2,12 @@ import type {Metadata} from "next";
 import {Clock3, Mail, MapPin} from "lucide-react";
 import {ContactForm} from "@/components/forms/ContactForm";
 import {getSiteCopy} from "@/lib/content/repository";
+import {brand} from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Visite e contatti",
   description:
-    "Contatta Pian della Carlotta per prodotti, rivendita e visite in azienda.",
+    `Contatta ${brand.name} per prodotti, rivendita e visite a ${brand.location}.`,
 };
 
 export default async function ContactPage() {
@@ -29,7 +30,7 @@ export default async function ContactPage() {
           <div>
             <MapPin aria-hidden="true" size={19} />
             <p className="eyebrow">Dove siamo</p>
-            <strong>Campagna di Todi</strong>
+            <strong>{brand.location}</strong>
             <span>Umbria, Italia</span>
             <small>Le indicazioni precise vengono inviate alla conferma.</small>
           </div>

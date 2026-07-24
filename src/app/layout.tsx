@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {DM_Mono, Manrope} from "next/font/google";
 import "@/app/globals.css";
 import {PageTransitionProvider} from "@/components/transitions/PageTransitionProvider";
+import {brand} from "@/lib/brand";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -17,13 +18,13 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://piandellacarlotta.it"),
+  metadataBase: new URL(brand.productionUrl),
   title: {
-    default: "Pian della Carlotta · Azienda agricola in Umbria",
-    template: "%s · Pian della Carlotta",
+    default: `${brand.name} · Azienda agricola a ${brand.location}`,
+    template: `%s · ${brand.name}`,
   },
   description:
-    "Olio, vino e piccole produzioni agricole dalle colline umbre vicino Todi.",
+    "Olio, vino e piccole produzioni agricole da San Damiano di Todi, nel cuore dell’Umbria.",
 };
 
 export default function RootLayout({

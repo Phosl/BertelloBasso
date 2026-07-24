@@ -1,4 +1,5 @@
 import type {AdminSnapshot, Product, SiteCopy} from "./types";
+import {brand} from "@/lib/brand";
 
 export const defaultProducts: Product[] = [
   {
@@ -120,14 +121,14 @@ export const defaultProducts: Product[] = [
 ];
 
 export const defaultSiteCopy: SiteCopy = {
-  heroKicker: "Azienda agricola · Todi, Umbria",
+  heroKicker: `Azienda agricola · ${brand.location}`,
   heroTitle: "Coltiviamo cose buone. Con il tempo che serve.",
   heroBody:
     "Olio, vino e piccole produzioni di dispensa nate sulle colline umbre, tra gesti di famiglia e curiosità contemporanea.",
   storyTitle: "Una casa, due persone, molte stagioni.",
   storyBody:
-    "Pian della Carlotta è un progetto agricolo di famiglia. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.",
-  contactEmail: "ciao@piandellacarlotta.it",
+    `${brand.name} è un progetto agricolo di famiglia a ${brand.location}. Coltiviamo seguendo il ritmo dei campi, trasformiamo in piccole quantità e raccontiamo ogni prodotto con trasparenza, dalla pianta alla tavola.`,
+  contactEmail: brand.email,
   contactPhone: "+39 000 000 0000",
 };
 

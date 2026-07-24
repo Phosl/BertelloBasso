@@ -1,5 +1,6 @@
 import {ArrowUpRight} from "lucide-react";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
+import {brand} from "@/lib/brand";
 
 export function SiteFooter() {
   return (
@@ -13,9 +14,9 @@ export function SiteFooter() {
       </div>
       <div className="site-footer__grid">
         <div>
-          <strong>Pian della Carlotta</strong>
+          <strong>{brand.name}</strong>
           <span>Azienda agricola di famiglia</span>
-          <span>Umbria, Italia</span>
+          <span>{brand.location} · {brand.region}</span>
         </div>
         <div>
           <TransitionLink href="/prodotti">Prodotti</TransitionLink>
@@ -23,8 +24,8 @@ export function SiteFooter() {
           <TransitionLink href="/contatti">Contatti</TransitionLink>
         </div>
         <div>
-          <a href="mailto:ciao@piandellacarlotta.it">
-            ciao@piandellacarlotta.it
+          <a href={`mailto:${brand.email}`}>
+            {brand.email}
           </a>
           <a href="#" aria-label="Instagram, profilo da collegare">
             Instagram
@@ -33,7 +34,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="site-footer__legal">
-        <span>© {new Date().getFullYear()} Pian della Carlotta</span>
+        <span>© {new Date().getFullYear()} {brand.name}</span>
         <span>Made slowly in Umbria</span>
       </div>
     </footer>

@@ -1,6 +1,7 @@
-# Pian della Carlotta
+# Bertello Basso
 
-Sito pubblico e gestionale per una piccola azienda agricola umbra. Il progetto
+Sito pubblico e gestionale per una piccola azienda agricola a San Damiano di
+Todi, in Umbria. Il progetto
 usa Next.js App Router, TypeScript, GSAP, WebGL e un repository contenuti
 sostituibile con Supabase.
 

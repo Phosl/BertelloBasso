@@ -5,6 +5,7 @@ import {usePathname} from "next/navigation";
 import gsap from "gsap";
 import {Menu, X} from "lucide-react";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
+import {brand} from "@/lib/brand";
 
 const links = [
   {href: "/prodotti", label: "Prodotti"},
@@ -105,13 +106,13 @@ export function SiteHeader() {
     <>
       <header className="site-header">
         <TransitionLink
-          aria-label="Pian della Carlotta, home"
+          aria-label={`${brand.name}, home`}
           className="wordmark"
           href="/"
           onClick={close}
         >
-          <span>Pian della</span>
-          <strong>Carlotta</strong>
+          <span>{brand.wordmarkTop}</span>
+          <strong>{brand.wordmarkBottom}</strong>
         </TransitionLink>
         <nav aria-label="Navigazione principale" className="desktop-nav">
           {links.map((link) => (
@@ -151,7 +152,7 @@ export function SiteHeader() {
         role="dialog"
       >
         <div className="mobile-menu__top" data-menu-item>
-          <span>Pian della Carlotta</span>
+          <span>{brand.name}</span>
           <button
             aria-label="Chiudi il menu"
             onClick={close}

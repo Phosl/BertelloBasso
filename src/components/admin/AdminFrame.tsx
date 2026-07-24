@@ -16,6 +16,7 @@ import {
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {getBrowserSupabase} from "@/lib/supabase/browser";
 import {useAdminData} from "./AdminDataProvider";
+import {brand} from "@/lib/brand";
 
 const adminLinks = [
   {href: "/admin", label: "Panoramica", icon: Gauge},
@@ -66,9 +67,9 @@ export function AdminFrame({children}: {children: ReactNode}) {
     <div className="admin-app">
       <aside className={menuOpen ? "is-open" : ""}>
         <div className="admin-brand">
-          <span className="admin-brand__mark">PC</span>
+          <span className="admin-brand__mark">{brand.mark}</span>
           <div>
-            <strong>Pian della Carlotta</strong>
+            <strong>{brand.name}</strong>
             <small>Amministrazione</small>
           </div>
           <button

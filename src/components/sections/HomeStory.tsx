@@ -2,18 +2,19 @@ import {ArrowUpRight} from "lucide-react";
 import type {SiteCopy} from "@/lib/content/types";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {SectionReveal} from "@/components/ui/SectionReveal";
+import {brand} from "@/lib/brand";
 
 export function HomeStory({copy}: {copy: SiteCopy}) {
   return (
     <section className="home-story">
       <SectionReveal className="home-story__grid">
         <div className="home-story__mark" aria-hidden="true">
-          <span>P</span>
+          <span>B</span>
           <i />
-          <span>C</span>
+          <span>B</span>
         </div>
         <div>
-          <p className="eyebrow">Pian della Carlotta · dal 2020</p>
+          <p className="eyebrow">{brand.name} · {brand.location}</p>
           <h2>{copy.storyTitle}</h2>
           <p className="home-story__body">{copy.storyBody}</p>
           <TransitionLink className="text-link" href="/storia">
