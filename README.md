@@ -7,7 +7,7 @@ sostituibile con Supabase.
 
 ## Avvio
 
-Richiede Node.js 22 o successivo.
+Richiede Node.js 22.
 
 ```bash
 npm install
