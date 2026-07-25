@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {headers} from "next/headers";
 import {DM_Mono, Manrope} from "next/font/google";
 import "@/app/globals.css";
+import "photoswipe/style.css";
 import {PageTransitionProvider} from "@/components/transitions/PageTransitionProvider";
 import {brand} from "@/lib/brand";
 import {getMessages} from "@/lib/i18n/messages";

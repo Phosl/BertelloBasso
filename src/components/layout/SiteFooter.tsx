@@ -32,6 +32,9 @@ export function SiteFooter({locale}: {locale: Locale}) {
           <TransitionLink href={publicPath(locale, "products")}>
             {copy.footer.products}
           </TransitionLink>
+          <TransitionLink href={publicPath(locale, "photography")}>
+            {copy.footer.photography}
+          </TransitionLink>
           <TransitionLink href={publicPath(locale, "story")}>
             {copy.footer.story}
           </TransitionLink>

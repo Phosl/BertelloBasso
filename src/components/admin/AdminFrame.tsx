@@ -7,6 +7,7 @@ import {
   ExternalLink,
   FileText,
   Gauge,
+  Images,
   LogOut,
   Mail,
   Menu,
@@ -21,6 +22,7 @@ import {brand} from "@/lib/brand";
 const adminLinks = [
   {href: "/admin", label: "Panoramica", icon: Gauge},
   {href: "/admin/prodotti", label: "Prodotti", icon: Boxes},
+  {href: "/admin/gallerie", label: "Gallerie", icon: Images},
   {href: "/admin/contenuti", label: "Contenuti sito", icon: FileText},
   {href: "/admin/messaggi", label: "Messaggi", icon: Mail},
 ];
@@ -38,12 +40,22 @@ export function AdminFrame({children}: {children: ReactNode}) {
       return;
     }
     const client = getBrowserSupabase();
-    void client?.auth.getSession().then(({data}) => {
+    void client?.auth.getSession().then(async ({data}) => {
       if (!data.session) {
         router.replace("/admin/accesso");
-      } else {
-        setChecking(false);
+        return;
       }
+      const {data: profile, error} = await client
+        .from("profiles")
+        .select("role")
+        .eq("id", data.session.user.id)
+        .maybeSingle();
+      if (error || profile?.role !== "admin") {
+        await client.auth.signOut();
+        router.replace("/admin/accesso");
+        return;
+      }
+      setChecking(false);
     });
   }, [configured, isLogin, router]);
 

@@ -16,7 +16,7 @@ export async function generateMetadata({
   return localizedMetadata({
     locale: "it",
     route: "products",
-    productSlug: product.slug,
+    slug: product.slug,
     title: product.name,
     description: product.description,
   });

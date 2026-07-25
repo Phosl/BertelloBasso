@@ -22,6 +22,10 @@ export function SiteHeader({locale}: {locale: Locale}) {
       href: publicPath(locale, "products"),
       label: copy.navigation.products,
     },
+    {
+      href: publicPath(locale, "photography"),
+      label: copy.navigation.photography,
+    },
     {href: publicPath(locale, "story"), label: copy.navigation.story},
     {href: publicPath(locale, "contact"), label: copy.navigation.contact},
   ];

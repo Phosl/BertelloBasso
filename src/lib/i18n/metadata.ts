@@ -7,16 +7,16 @@ export function localizedMetadata({
   route,
   title,
   description,
-  productSlug,
+  slug,
 }: {
   locale: Locale;
   route: PublicRoute;
   title: string;
   description: string;
-  productSlug?: string;
+  slug?: string;
 }): Metadata {
-  const italian = publicPath("it", route, productSlug);
-  const english = publicPath("en", route, productSlug);
+  const italian = publicPath("it", route, slug);
+  const english = publicPath("en", route, slug);
   const canonical = locale === "it" ? italian : english;
 
   return {
