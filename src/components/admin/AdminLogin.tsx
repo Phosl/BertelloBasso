@@ -30,6 +30,7 @@ export function AdminLogin() {
       return;
     }
     router.replace("/admin");
+    router.refresh();
   }
 
   return (

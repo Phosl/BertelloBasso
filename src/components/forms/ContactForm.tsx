@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useSearchParams} from "next/navigation";
 import {Check, LoaderCircle, Send} from "lucide-react";
 import {z} from "zod";
 import type {Locale} from "@/lib/i18n/config";
@@ -9,7 +10,15 @@ import {getMessages} from "@/lib/i18n/messages";
 type FormState = "idle" | "sending" | "success" | "error";
 
 export function ContactForm({locale}: {locale: Locale}) {
+  const searchParams = useSearchParams();
   const copy = getMessages(locale).form;
+  const requestedProduct = searchParams.get("product")?.trim() ?? "";
+  const requestedFormat = searchParams.get("format")?.trim() ?? "";
+  const productSubject = requestedProduct
+    ? `${copy.productRequest}: ${requestedProduct}${
+        requestedFormat ? ` · ${requestedFormat}` : ""
+      }`
+    : "";
   const contactSchema = z.object({
     name: z.string().trim().min(2, copy.validation.name),
     email: z.string().trim().email(copy.validation.email),
@@ -110,10 +119,13 @@ export function ContactForm({locale}: {locale: Locale}) {
         <select
           aria-describedby={errors.subject ? "subject-error" : undefined}
           aria-invalid={Boolean(errors.subject)}
-          defaultValue=""
+          defaultValue={productSubject}
           name="subject"
         >
           <option disabled value="">{copy.chooseSubject}</option>
+          {productSubject ? (
+            <option value={productSubject}>{productSubject}</option>
+          ) : null}
           {copy.subjects.map((subject) => (
             <option key={subject} value={subject}>{subject}</option>
           ))}

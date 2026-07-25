@@ -14,6 +14,21 @@ export type ProductTranslation = {
   description: string;
 };
 
+export type ProductMedia = {
+  id: string;
+  mediaId: string;
+  role: "primary" | "gallery";
+  sortOrder: number;
+  focalX: number;
+  focalY: number;
+  width: number;
+  height: number;
+  altText: string;
+  caption: string;
+  imageUrl: string;
+  thumbnailUrl: string;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -29,6 +44,7 @@ export type Product = {
   visual: "oil" | "white-wine" | "red-wine" | "gin" | "sauce" | "tomato-chips" | "polenta-chips";
   accent: string;
   translations: Partial<Record<Exclude<Locale, "it">, ProductTranslation>>;
+  media?: ProductMedia[];
 };
 
 export type SiteCopy = {

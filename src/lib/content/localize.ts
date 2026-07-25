@@ -12,5 +12,9 @@ export function localizeProduct(product: Product, locale: Locale): Product {
     name: translation.name.trim() || product.name,
     eyebrow: translation.eyebrow.trim() || product.eyebrow,
     description: translation.description.trim() || product.description,
+    media: product.media?.map((media) => ({
+      ...media,
+      altText: media.altText || translation.name.trim() || product.name,
+    })),
   };
 }

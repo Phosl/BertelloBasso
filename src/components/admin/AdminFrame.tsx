@@ -1,6 +1,6 @@
 "use client";
 
-import {type ReactNode, useEffect, useState} from "react";
+import {type ReactNode, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {
   Boxes,
@@ -8,10 +8,12 @@ import {
   FileText,
   Gauge,
   Images,
+  Image as ImageIcon,
   LogOut,
   Mail,
   Menu,
   RotateCcw,
+  Settings,
   X,
 } from "lucide-react";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
@@ -23,56 +25,25 @@ const adminLinks = [
   {href: "/admin", label: "Panoramica", icon: Gauge},
   {href: "/admin/prodotti", label: "Prodotti", icon: Boxes},
   {href: "/admin/gallerie", label: "Gallerie", icon: Images},
-  {href: "/admin/contenuti", label: "Contenuti sito", icon: FileText},
+  {href: "/admin/pagine", label: "Pagine", icon: FileText},
+  {href: "/admin/media", label: "Immagini", icon: ImageIcon},
+  {href: "/admin/impostazioni", label: "Impostazioni", icon: Settings},
   {href: "/admin/messaggi", label: "Messaggi", icon: Mail},
 ];
 
 export function AdminFrame({children}: {children: ReactNode}) {
   const pathname = usePathname();
   const router = useRouter();
-  const {configured, notice, resetDemo, saveState} = useAdminData();
+  const {configured, lastSavedAt, notice, resetDemo, saveState} = useAdminData();
   const isLogin = pathname === "/admin/accesso";
-  const [checking, setChecking] = useState(configured && !isLogin);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (!configured || isLogin) {
-      return;
-    }
-    const client = getBrowserSupabase();
-    void client?.auth.getSession().then(async ({data}) => {
-      if (!data.session) {
-        router.replace("/admin/accesso");
-        return;
-      }
-      const {data: profile, error} = await client
-        .from("profiles")
-        .select("role")
-        .eq("id", data.session.user.id)
-        .maybeSingle();
-      if (error || profile?.role !== "admin") {
-        await client.auth.signOut();
-        router.replace("/admin/accesso");
-        return;
-      }
-      setChecking(false);
-    });
-  }, [configured, isLogin, router]);
-
   if (isLogin) return children;
-
-  if (checking) {
-    return (
-      <div className="admin-loading">
-        <span />
-        <p>Verifica accesso…</p>
-      </div>
-    );
-  }
 
   async function signOut() {
     await getBrowserSupabase()?.auth.signOut();
     router.replace("/admin/accesso");
+    router.refresh();
   }
 
   return (
@@ -148,11 +119,18 @@ export function AdminFrame({children}: {children: ReactNode}) {
             />
             {configured ? "Supabase connesso" : "Modalità demo locale"}
           </div>
-          <span className={`save-indicator is-${saveState}`}>
+          <span className={`save-indicator is-${saveState}`} aria-live="polite">
             {saveState === "saving"
               ? "Salvataggio…"
               : saveState === "saved"
-                ? "Salvato"
+                ? `Salvato${
+                    lastSavedAt
+                      ? ` alle ${lastSavedAt.toLocaleTimeString("it-IT", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}`
+                      : ""
+                  }`
                 : saveState === "error"
                   ? "Errore"
                   : ""}

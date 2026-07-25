@@ -1,6 +1,7 @@
 import {notFound} from "next/navigation";
 import {ArrowLeft, Mail} from "lucide-react";
 import {ProductVisual} from "@/components/products/ProductVisual";
+import {ProductMediaGallery} from "@/components/products/ProductMediaGallery";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {getProducts} from "@/lib/content/repository";
 import type {Locale} from "@/lib/i18n/config";
@@ -19,6 +20,8 @@ export async function ProductDetailPageView({
   );
   if (!product) notFound();
   const copy = getMessages(locale).products;
+  const visibleMedia =
+    product.media?.filter((item) => item.imageUrl || item.thumbnailUrl) ?? [];
 
   return (
     <article className="product-detail">
@@ -29,7 +32,14 @@ export async function ProductDetailPageView({
         >
           <ArrowLeft aria-hidden="true" size={17} /> {copy.allProducts}
         </TransitionLink>
-        <ProductVisual locale={locale} product={product} />
+        {visibleMedia.length ? (
+          <ProductMediaGallery
+            label={copy.viewerLabel}
+            media={visibleMedia}
+          />
+        ) : (
+          <ProductVisual locale={locale} product={product} />
+        )}
       </div>
       <div className="product-detail__content">
         <div className="product-detail__meta">
@@ -44,12 +54,14 @@ export async function ProductDetailPageView({
             <div key={format.label}>
               <strong>{format.label}</strong>
               <span>
-                {format.price
+                {format.price !== undefined
                   ? new Intl.NumberFormat(
                       locale === "it" ? "it-IT" : "en-GB",
                       {style: "currency", currency: "EUR"},
                     ).format(format.price)
-                  : copy.priceSoon}
+                  : product.status === "coming_soon"
+                    ? copy.priceSoon
+                    : copy.priceRequest}
               </span>
             </div>
           ))}
@@ -62,7 +74,11 @@ export async function ProductDetailPageView({
         ) : null}
         <TransitionLink
           className="button-link"
-          href={publicPath(locale, "contact")}
+          href={`${publicPath(locale, "contact")}?${new URLSearchParams({
+            product: product.name,
+            productSlug: product.slug,
+            format: product.formats[0]?.label ?? "",
+          }).toString()}`}
         >
           <Mail aria-hidden="true" size={17} />
           {copy.askAvailability}

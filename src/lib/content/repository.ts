@@ -8,9 +8,10 @@ import {
 } from "./default-content";
 import {localizeProduct} from "./localize";
 import {mapProductRecord} from "./product-mapper";
-import type {Product, SiteCopy} from "./types";
+import type {Product, ProductMedia, SiteCopy} from "./types";
 import type {Locale} from "@/lib/i18n/config";
 import {isMissingSchemaError} from "@/lib/supabase/errors";
+import {signCmsMediaPaths} from "@/lib/cms/storage";
 
 function getPublicClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -21,6 +22,84 @@ function getPublicClient() {
 
 const productFields =
   "id, slug, name, eyebrow, description, category, status, formats, featured, published, sort_order, visual, accent";
+
+async function getProductMedia(
+  client: NonNullable<ReturnType<typeof getPublicClient>>,
+  productIds: string[],
+  locale: Locale,
+) {
+  if (!productIds.length) return new Map<string, ProductMedia[]>();
+  const {data, error} = await client
+    .from("product_media_links")
+    .select("id, product_id, media_id, role, sort_order, focal_x, focal_y, media_assets(*)")
+    .eq("scope", "published")
+    .in("product_id", productIds)
+    .order("sort_order");
+  if (error) {
+    if (!isMissingSchemaError(error)) {
+      console.error({
+        scope: "public_content",
+        operation: "select",
+        resource: "product_media_links",
+        code: error.code,
+      });
+    }
+    return new Map<string, ProductMedia[]>();
+  }
+  const rows = (data ?? []) as Array<Record<string, unknown>>;
+  const paths = rows.flatMap((row) => {
+    const asset = row.media_assets as Record<string, unknown> | undefined;
+    return asset
+      ? [String(asset.storage_path ?? ""), String(asset.thumbnail_path ?? "")]
+      : [];
+  });
+  let signed = new Map<string, string>();
+  try {
+    signed = await signCmsMediaPaths(client, paths);
+  } catch (error) {
+    console.error({
+      scope: "public_content",
+      operation: "sign",
+      resource: "cms-media",
+      code: (error as {code?: string}).code ?? "unknown",
+    });
+  }
+
+  const result = new Map<string, ProductMedia[]>();
+  rows.forEach((row) => {
+    const asset = row.media_assets as Record<string, unknown> | undefined;
+    if (!asset) return;
+    const translations =
+      asset.translations && typeof asset.translations === "object"
+        ? (asset.translations as {en?: {alt?: string; caption?: string}})
+        : {};
+    const storagePath = String(asset.storage_path ?? "");
+    const thumbnailPath = String(asset.thumbnail_path ?? "");
+    const media: ProductMedia = {
+      id: String(row.id),
+      mediaId: String(row.media_id),
+      role: row.role === "primary" ? "primary" : "gallery",
+      sortOrder: Number(row.sort_order ?? 0),
+      focalX: Number(row.focal_x ?? 0.5),
+      focalY: Number(row.focal_y ?? 0.5),
+      width: Number(asset.width ?? 1),
+      height: Number(asset.height ?? 1),
+      altText:
+        locale === "en" && translations.en?.alt?.trim()
+          ? translations.en.alt
+          : String(asset.alt_text ?? ""),
+      caption:
+        locale === "en" && translations.en?.caption?.trim()
+          ? translations.en.caption
+          : String(asset.caption ?? ""),
+      imageUrl: signed.get(storagePath) ?? "",
+      thumbnailUrl: signed.get(thumbnailPath) ?? "",
+    };
+    const productId = String(row.product_id);
+    result.set(productId, [...(result.get(productId) ?? []), media]);
+  });
+  return result;
+}
 
 export const getProducts = cache(async (locale: Locale = "it"): Promise<Product[]> => {
   const client = getPublicClient();
@@ -59,9 +138,15 @@ export const getProducts = cache(async (locale: Locale = "it"): Promise<Product[
     return defaultPublished;
   }
 
-  return (data ?? []).map((row) =>
+  const products = (data ?? []).map((row) => mapProductRecord(row));
+  const media = await getProductMedia(
+    client,
+    products.map((product) => product.id),
+    locale,
+  );
+  return products.map((product) =>
     localizeProduct(
-      mapProductRecord(row),
+      {...product, media: media.get(product.id) ?? []},
       locale,
     ),
   );

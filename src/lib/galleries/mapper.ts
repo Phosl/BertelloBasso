@@ -103,7 +103,7 @@ export const gallerySelect = `
   published_at,
   created_at,
   updated_at,
-  gallery_photos (
+  gallery_photos!gallery_photos_gallery_id_fkey (
     id,
     gallery_id,
     storage_path,

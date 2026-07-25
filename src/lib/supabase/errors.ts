@@ -42,11 +42,20 @@ export function getAdminErrorMessage(
   }
   if (
     error?.code === "23514" ||
-    /gallery_not_publishable|published_gallery_requires_valid_cover/.test(
+    /gallery_not_publishable|published_gallery_requires_valid_cover|cms_product_not_publishable|cms_page_not_publishable|cms_locked_section_missing/.test(
       error?.message ?? "",
     )
   ) {
+    if (/cms_product/.test(error?.message ?? "")) {
+      return "Prima di pubblicare completa nome, descrizione e almeno un formato.";
+    }
+    if (/cms_page|cms_locked/.test(error?.message ?? "")) {
+      return "Prima di pubblicare completa il titolo e lascia visibile almeno una sezione obbligatoria.";
+    }
     return "Prima di pubblicare servono titolo, località, almeno una fotografia e una copertina.";
+  }
+  if (error?.message === "PRODUCT_MEDIA_LIMIT") {
+    return "Puoi collegare al massimo 12 fotografie a un prodotto.";
   }
   return "Non è stato possibile completare l’operazione. Riprova.";
 }

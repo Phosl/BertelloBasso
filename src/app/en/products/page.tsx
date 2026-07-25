@@ -1,15 +1,9 @@
 import {ProductsPageView} from "@/components/pages/ProductsPageView";
-import {getMessages} from "@/lib/i18n/messages";
-import {localizedMetadata} from "@/lib/i18n/metadata";
+import {cmsSystemPageMetadata} from "@/lib/cms/metadata";
 
-const copy = getMessages("en").products;
-
-export const metadata = localizedMetadata({
-  locale: "en",
-  route: "products",
-  title: copy.metadataTitle,
-  description: copy.metadataDescription,
-});
+export function generateMetadata() {
+  return cmsSystemPageMetadata("en", "products");
+}
 
 export default function EnglishProductsPage() {
   return <ProductsPageView locale="en" />;

@@ -14,7 +14,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "2.110.8",
+    "@tiptap/extension-link": "^3.3.0",
+    "@tiptap/react": "^3.3.0",
+    "@tiptap/starter-kit": "^3.3.0",
     "browser-image-compression": "^2.0.2",
     "gsap": "3.15.0",
     "heic2any": "^0.0.4",

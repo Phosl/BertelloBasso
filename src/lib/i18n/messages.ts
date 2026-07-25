@@ -49,6 +49,8 @@ export const messages = {
       allProducts: "Tutti i prodotti",
       formats: "Formati",
       priceSoon: "Prezzo in arrivo",
+      priceRequest: "Prezzo su richiesta",
+      viewerLabel: "Apri la fotografia del prodotto",
       askAvailability: "Chiedi disponibilità",
       status: {
         available: "Disponibile",
@@ -147,6 +149,7 @@ export const messages = {
         "Rivenditori e ristorazione",
         "Altro",
       ],
+      productRequest: "Richiesta prodotto",
       message: "Messaggio",
       messagePlaceholder: "Raccontaci come possiamo aiutarti…",
       privacy:
@@ -231,6 +234,8 @@ export const messages = {
       allProducts: "All products",
       formats: "Sizes",
       priceSoon: "Price coming soon",
+      priceRequest: "Price on request",
+      viewerLabel: "Open product photograph",
       askAvailability: "Ask about availability",
       status: {
         available: "Available",
@@ -329,6 +334,7 @@ export const messages = {
         "Retail and hospitality",
         "Other",
       ],
+      productRequest: "Product request",
       message: "Message",
       messagePlaceholder: "Tell us how we can help…",
       privacy:

@@ -1,15 +1,9 @@
 import {StoryPageView} from "@/components/pages/StoryPageView";
-import {getMessages} from "@/lib/i18n/messages";
-import {localizedMetadata} from "@/lib/i18n/metadata";
+import {cmsSystemPageMetadata} from "@/lib/cms/metadata";
 
-const copy = getMessages("en").story;
-
-export const metadata = localizedMetadata({
-  locale: "en",
-  route: "story",
-  title: copy.metadataTitle,
-  description: copy.metadataDescription,
-});
+export function generateMetadata() {
+  return cmsSystemPageMetadata("en", "story");
+}
 
 export default function EnglishStoryPage() {
   return <StoryPageView locale="en" />;

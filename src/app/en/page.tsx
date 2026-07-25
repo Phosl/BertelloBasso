@@ -1,13 +1,9 @@
 import {HomePageView} from "@/components/pages/HomePageView";
-import {localizedMetadata} from "@/lib/i18n/metadata";
+import {cmsSystemPageMetadata} from "@/lib/cms/metadata";
 
-export const metadata = localizedMetadata({
-  locale: "en",
-  route: "home",
-  title: "Family farm in San Damiano di Todi",
-  description:
-    "Olive oil, wine and small-batch farm products from San Damiano di Todi, in the heart of Umbria.",
-});
+export function generateMetadata() {
+  return cmsSystemPageMetadata("en", "home");
+}
 
 export default function EnglishHomePage() {
   return <HomePageView locale="en" />;

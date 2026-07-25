@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element -- Product media use expiring signed Supabase URLs. */
+
 import type {Product} from "@/lib/content/types";
 import {brand} from "@/lib/brand";
 import type {Locale} from "@/lib/i18n/config";
@@ -17,6 +19,31 @@ export function ProductVisual({
     product.visual,
   );
   const isBag = ["tomato-chips", "polenta-chips"].includes(product.visual);
+  const primaryMedia =
+    product.media?.find((item) => item.role === "primary") ?? product.media?.[0];
+
+  if (primaryMedia?.thumbnailUrl || primaryMedia?.imageUrl) {
+    return (
+      <div
+        className={`product-visual product-visual--photo ${
+          compact ? "is-compact" : ""
+        }`}
+      >
+        <img
+          alt={primaryMedia.altText || product.name}
+          height={primaryMedia.height}
+          loading={compact ? "lazy" : "eager"}
+          src={primaryMedia.thumbnailUrl || primaryMedia.imageUrl}
+          style={{
+            objectPosition: `${primaryMedia.focalX * 100}% ${
+              primaryMedia.focalY * 100
+            }%`,
+          }}
+          width={primaryMedia.width}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

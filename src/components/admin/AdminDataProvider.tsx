@@ -33,7 +33,9 @@ type AdminDataContextValue = {
   configured: boolean;
   loading: boolean;
   saveState: SaveState;
+  lastSavedAt: Date | null;
   notice: string;
+  reportCmsState: (state: SaveState, notice?: string) => void;
   refresh: () => Promise<void>;
   resetDemo: () => void;
   updateProduct: (id: string, patch: Partial<Product>) => Promise<boolean>;
@@ -119,6 +121,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
   const [data, setData] = useState<AdminSnapshot>(defaultSnapshot);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [notice, setNotice] = useState("");
 
   const refresh = useCallback(async () => {
@@ -218,6 +221,12 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
     setNotice("Dati demo ripristinati.");
   }, [configured]);
 
+  const reportCmsState = useCallback((state: SaveState, message = "") => {
+    setSaveState(state);
+    setNotice(message);
+    if (state === "saved") setLastSavedAt(new Date());
+  }, []);
+
   const updateProduct = useCallback(
     async (id: string, patch: Partial<Product>) => {
       const current = data.products.find((product) => product.id === id);
@@ -237,6 +246,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         saveLocal(next);
         await new Promise((resolve) => setTimeout(resolve, 260));
         setSaveState("saved");
+        setLastSavedAt(new Date());
         return true;
       }
 
@@ -251,6 +261,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         return false;
       }
       setSaveState("saved");
+      setLastSavedAt(new Date());
       return true;
     },
     [configured, data],
@@ -282,6 +293,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         saveLocal(next);
         await new Promise((resolve) => setTimeout(resolve, 260));
         setSaveState("saved");
+        setLastSavedAt(new Date());
         return true;
       }
 
@@ -299,6 +311,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         return false;
       }
       setSaveState("saved");
+      setLastSavedAt(new Date());
       return true;
     },
     [configured, data],
@@ -319,6 +332,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
       if (!configured) {
         saveLocal(next);
         setSaveState("saved");
+        setLastSavedAt(new Date());
         return true;
       }
 
@@ -333,6 +347,7 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
         return false;
       }
       setSaveState("saved");
+      setLastSavedAt(new Date());
       return true;
     },
     [configured, data],
@@ -344,7 +359,9 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
       configured,
       loading,
       saveState,
+      lastSavedAt,
       notice,
+      reportCmsState,
       refresh,
       resetDemo,
       updateProduct,
@@ -355,7 +372,9 @@ export function AdminDataProvider({children}: {children: ReactNode}) {
       configured,
       data,
       loading,
+      lastSavedAt,
       notice,
+      reportCmsState,
       refresh,
       resetDemo,
       saveState,

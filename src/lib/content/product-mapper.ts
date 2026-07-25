@@ -28,5 +28,6 @@ export function mapProductRecord(row: Record<string, unknown>): Product {
       ...fallback?.translations,
       ...translations,
     },
+    media: fallback?.media ?? [],
   };
 }

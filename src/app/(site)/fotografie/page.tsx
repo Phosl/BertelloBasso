@@ -1,17 +1,11 @@
 import {PhotographyPageView} from "@/components/pages/PhotographyPageView";
-import {getMessages} from "@/lib/i18n/messages";
-import {localizedMetadata} from "@/lib/i18n/metadata";
-
-const copy = getMessages("it").photography;
+import {cmsSystemPageMetadata} from "@/lib/cms/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = localizedMetadata({
-  locale: "it",
-  route: "photography",
-  title: copy.metadataTitle,
-  description: copy.metadataDescription,
-});
+export function generateMetadata() {
+  return cmsSystemPageMetadata("it", "photography");
+}
 
 export default function PhotographyPage() {
   return <PhotographyPageView locale="it" />;

@@ -61,6 +61,9 @@ export function languageSwitchPath(pathname: string, target: Locale) {
     }
     if (pathname === publicRoutes.it.story) return publicRoutes.en.story;
     if (pathname === publicRoutes.it.contact) return publicRoutes.en.contact;
+    if (pathname.startsWith("/") && pathname.split("/").filter(Boolean).length === 1) {
+      return `/en${pathname}`;
+    }
     return publicRoutes.en.home;
   }
 
@@ -76,5 +79,8 @@ export function languageSwitchPath(pathname: string, target: Locale) {
   }
   if (pathname === publicRoutes.en.story) return publicRoutes.it.story;
   if (pathname === publicRoutes.en.contact) return publicRoutes.it.contact;
+  if (pathname.startsWith("/en/")) {
+    return pathname.slice(3) || "/";
+  }
   return publicRoutes.it.home;
 }

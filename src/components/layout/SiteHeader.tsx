@@ -12,23 +12,34 @@ import {
   languageSwitchPath,
   publicPath,
 } from "@/lib/i18n/routing";
+import {cmsPageHref} from "@/lib/cms/routing";
+import {localizeText} from "@/lib/cms/localize";
+import type {CmsPage, NavigationEntry} from "@/lib/cms/types";
 
-export function SiteHeader({locale}: {locale: Locale}) {
+export function SiteHeader({
+  locale,
+  navigation,
+  pages,
+}: {
+  locale: Locale;
+  navigation: NavigationEntry[];
+  pages: CmsPage[];
+}) {
   const pathname = usePathname();
   const copy = getMessages(locale);
   const otherLocale: Locale = locale === "it" ? "en" : "it";
-  const links = [
-    {
-      href: publicPath(locale, "products"),
-      label: copy.navigation.products,
-    },
-    {
-      href: publicPath(locale, "photography"),
-      label: copy.navigation.photography,
-    },
-    {href: publicPath(locale, "story"), label: copy.navigation.story},
-    {href: publicPath(locale, "contact"), label: copy.navigation.contact},
-  ];
+  const links = navigation
+    .filter((entry) => entry.showHeader)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .flatMap((entry) => {
+      const page = pages.find((item) => item.id === entry.pageId);
+      return page
+        ? [{
+            href: cmsPageHref(page, locale),
+            label: localizeText(entry.label, locale),
+          }]
+        : [];
+    });
   const homeHref = publicPath(locale, "home");
   const languageHref = languageSwitchPath(pathname, otherLocale);
   const [open, setOpen] = useState(false);
