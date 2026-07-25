@@ -1437,26 +1437,58 @@ h4 {
 }
 
 .home-hero {
-  min-height: 100svh;
-  padding: 138px 0 38px;
+  align-items: center;
+  display: grid;
+  isolation: isolate;
+  min-height: max(760px, 100svh);
+  overflow: hidden;
+  padding: clamp(118px, 16vh, 180px) var(--page-pad) 72px;
   position: relative;
+}
+
+.home-hero__media {
+  inset: 70px 0 20px;
+  position: absolute;
+  z-index: -1;
+}
+
+.home-hero__media > .watercolor-reveal,
+.home-hero__media > img {
+  height: 100%;
+  margin: 0;
+  max-height: none;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
 }
 
 .home-hero__copy {
-  margin: 0 auto;
-  max-width: 1020px;
-  padding: 0 32px;
+  margin: 0;
+  max-width: min(1120px, 90vw);
+  min-width: 0;
+  padding: 0;
   position: relative;
+  width: min(1120px, 90vw);
   z-index: 3;
 }
 
+.home-hero__copy .eyebrow {
+  color: var(--ink);
+  text-shadow: 0 1px 18px rgba(245, 242, 232, 0.95);
+}
+
 .home-hero h1 {
-  font-size: clamp(54px, 7.3vw, 112px);
+  color: var(--ink);
+  font-size: clamp(62px, 8vw, 132px);
   font-weight: 440;
   letter-spacing: -0.072em;
-  line-height: 0.9;
-  margin: 18px 0 34px;
-  max-width: 980px;
+  line-height: 0.88;
+  margin: 20px 0 38px;
+  max-width: 1080px;
+  text-shadow:
+    0 1px 0 rgba(245, 242, 232, 0.9),
+    0 0 30px rgba(245, 242, 232, 0.72);
 }
 
 .home-hero__intro {
@@ -1465,23 +1497,31 @@ h4 {
   gap: 32px;
   grid-template-columns: minmax(260px, 480px) auto;
   justify-content: space-between;
-  margin-left: min(18vw, 210px);
+  margin-left: min(15vw, 190px);
+  max-width: 850px;
+  min-width: 0;
 }
 
 .home-hero__intro > p {
-  color: var(--ink-soft);
-  font-size: 16px;
+  color: var(--ink);
+  font-size: clamp(16px, 1.4vw, 20px);
+  font-weight: 520;
   line-height: 1.62;
+  text-shadow:
+    0 1px 0 rgba(245, 242, 232, 0.92),
+    0 0 22px rgba(245, 242, 232, 0.88);
 }
 
 .round-link {
   align-items: center;
-  border: 1px solid var(--line-strong);
+  background: rgba(245, 242, 232, 0.88);
+  border: 1px solid rgba(27, 33, 25, 0.7);
   border-radius: 50%;
   display: flex;
   flex: 0 0 auto;
-  font-size: 11px;
-  height: 106px;
+  font-size: 12px;
+  font-weight: 650;
+  height: 112px;
   justify-content: center;
   padding: 18px;
   text-align: center;
@@ -1489,7 +1529,7 @@ h4 {
     background 0.35s ease,
     color 0.35s ease,
     transform 0.35s ease;
-  width: 106px;
+  width: 112px;
 }
 
 .round-link span {
@@ -1542,14 +1582,17 @@ h4 {
 
 .home-hero__caption {
   align-items: center;
-  bottom: 32px;
+  bottom: 34px;
+  color: var(--ink);
   display: flex;
   font-family: var(--font-mono), monospace;
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 650;
   gap: 16px;
-  left: 32px;
+  left: var(--page-pad);
   letter-spacing: 0.1em;
   position: absolute;
+  text-shadow: 0 1px 12px rgba(245, 242, 232, 0.95);
   text-transform: uppercase;
   z-index: 3;
 }
@@ -3777,18 +3820,28 @@ h4 {
   }
 
   .home-hero {
-    min-height: auto;
-    padding-top: 118px;
+    align-items: start;
+    min-height: max(700px, 100svh);
+    padding: 128px 18px 68px;
+  }
+
+  .home-hero__media {
+    inset: 76px 0 18px;
   }
 
   .home-hero__copy {
-    padding: 0 18px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0;
+    width: 100%;
   }
 
   .home-hero h1 {
-    font-size: clamp(50px, 15vw, 66px);
+    font-size: clamp(52px, 15vw, 72px);
     line-height: 0.9;
     margin-top: 16px;
+    max-width: 100%;
+    overflow-wrap: break-word;
   }
 
   .home-hero__intro {
@@ -3798,28 +3851,29 @@ h4 {
   }
 
   .home-hero__intro > p {
-    font-size: 14px;
+    font-size: 16px;
+    max-width: 92%;
   }
 
   .round-link {
-    border-radius: 0;
-    height: auto;
+    border-radius: 999px;
+    height: 54px;
     justify-content: space-between;
-    padding: 14px 0;
-    width: 100%;
+    padding: 0 18px;
+    width: min(100%, 280px);
   }
 
   .round-link span {
     max-width: none;
   }
 
-  .watercolor-reveal {
-    height: 300px;
-    margin-top: 24px;
+  .home-hero__media > .watercolor-reveal {
+    height: 100%;
+    margin-top: 0;
   }
 
   .home-hero__caption {
-    bottom: 15px;
+    bottom: 28px;
     left: 18px;
   }
 
@@ -4145,7 +4199,7 @@ h4 {
 
 @media (max-width: 390px) {
   .home-hero h1 {
-    font-size: 51px;
+    font-size: 44px;
   }
 
   .product-card__visual {

@@ -4,6 +4,7 @@ import {ArrowUpRight, Images, Quote} from "lucide-react";
 import {ContactForm} from "@/components/forms/ContactForm";
 import {GalleryMap} from "@/components/galleries/GalleryMap";
 import {ProductCard} from "@/components/products/ProductCard";
+import {HomeHero} from "@/components/sections/HomeHero";
 import {SectionReveal} from "@/components/ui/SectionReveal";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {WatercolorReveal} from "@/components/visual/WatercolorReveal";
@@ -151,6 +152,33 @@ export async function PageRenderer({
             page.pageKey === "home" && !heroAsset
               ? "/images/umbrian-estate-hero.png"
               : "";
+          const heroSrc = heroAsset?.imageUrl ?? fallbackHero;
+
+          if (page.pageKey === "home" && heroSrc) {
+            return (
+              <HomeHero
+                actionHref={
+                  section.actionHref
+                    ? localizedHref(section.actionHref, locale)
+                    : ""
+                }
+                actionLabel={localizeText(section.actionLabel, locale)}
+                body={localizeText(section.body, locale)}
+                imageAlt={
+                  heroAsset
+                    ? localizeText(heroAsset.alt, locale)
+                    : getMessages(locale).home.imageAlt
+                }
+                imageSrc={heroSrc}
+                key={section.id}
+                kicker={localizeText(section.kicker, locale)}
+                locale={locale}
+                title={localizeText(section.title, locale)}
+                watercolor={section.watercolor}
+              />
+            );
+          }
+
           return (
             <section className="cms-hero" key={section.id}>
               <div className="cms-hero__copy">

@@ -209,7 +209,9 @@ export function WatercolorReveal({
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.decoding = "async";
+    image.fetchPriority = "high";
     image.src = src;
 
     let frame = 0;
@@ -278,14 +280,19 @@ export function WatercolorReveal({
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        image,
-      );
+      try {
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          image,
+        );
+      } catch {
+        showFallback();
+        return;
+      }
       gl.uniform1i(gl.getUniformLocation(program, "uImage"), 0);
       frame = window.requestAnimationFrame(draw);
     };
