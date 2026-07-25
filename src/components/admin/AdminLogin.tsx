@@ -1,36 +1,76 @@
 "use client";
 
 import {useState} from "react";
-import {ArrowLeft, KeyRound, LoaderCircle} from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LoaderCircle,
+} from "lucide-react";
 import {useRouter} from "next/navigation";
 import {TransitionLink} from "@/components/transitions/TransitionLink";
 import {
   getBrowserSupabase,
   isSupabaseConfigured,
 } from "@/lib/supabase/browser";
+import {
+  getAdminAccessReasonMessage,
+  getAdminErrorMessage,
+  getAdminLoginErrorMessage,
+} from "@/lib/supabase/errors";
 
-export function AdminLogin() {
+export function AdminLogin({reason}: {reason?: string}) {
   const configured = isSupabaseConfigured();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(() =>
+    getAdminAccessReasonMessage(reason),
+  );
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     setLoading(true);
     setError("");
-    const {error: signInError} = await getBrowserSupabase()!.auth.signInWithPassword({
+    const client = getBrowserSupabase();
+    if (!client) {
+      setLoading(false);
+      setError("Il servizio di accesso non è configurato.");
+      return;
+    }
+
+    const {data, error: signInError} = await client.auth.signInWithPassword({
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
     });
-    setLoading(false);
     if (signInError) {
-      setError("Credenziali non valide o utente non autorizzato.");
+      setLoading(false);
+      setError(getAdminLoginErrorMessage(signInError));
       return;
     }
-    router.replace("/admin");
-    router.refresh();
+
+    const {data: profile, error: profileError} = await client
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      await client.auth.signOut();
+      setLoading(false);
+      setError(getAdminErrorMessage(profileError));
+      return;
+    }
+    if (profile?.role !== "admin") {
+      await client.auth.signOut();
+      setLoading(false);
+      setError(getAdminAccessReasonMessage("forbidden"));
+      return;
+    }
+
+    window.location.assign("/admin");
   }
 
   return (
@@ -51,18 +91,44 @@ export function AdminLogin() {
             <form onSubmit={submit}>
               <label>
                 <span>Email</span>
-                <input autoComplete="email" name="email" required type="email" />
+                <input
+                  autoComplete="email"
+                  autoFocus
+                  disabled={loading}
+                  name="email"
+                  required
+                  spellCheck={false}
+                  type="email"
+                />
               </label>
               <label>
                 <span>Password</span>
-                <input
-                  autoComplete="current-password"
-                  name="password"
-                  required
-                  type="password"
-                />
+                <span className="login-password-field">
+                  <input
+                    autoComplete="current-password"
+                    disabled={loading}
+                    name="password"
+                    required
+                    type={showPassword ? "text" : "password"}
+                  />
+                  <button
+                    aria-label={
+                      showPassword ? "Nascondi password" : "Mostra password"
+                    }
+                    className="login-password-toggle"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    type="button"
+                  >
+                    {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    {showPassword ? "Nascondi" : "Mostra"}
+                  </button>
+                </span>
               </label>
-              {error ? <p className="login-error">{error}</p> : null}
+              {error ? (
+                <p aria-live="assertive" className="login-error" role="alert">
+                  {error}
+                </p>
+              ) : null}
               <button disabled={loading} type="submit">
                 {loading ? <LoaderCircle className="spin" size={18} /> : null}
                 {loading ? "Accesso…" : "Accedi"}

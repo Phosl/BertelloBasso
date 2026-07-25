@@ -2,6 +2,7 @@ type DatabaseError = {
   code?: string;
   message?: string;
   details?: string | null;
+  status?: number;
 };
 
 const missingSchemaCodes = new Set([
@@ -58,4 +59,51 @@ export function getAdminErrorMessage(
     return "Puoi collegare al massimo 12 fotografie a un prodotto.";
   }
   return "Non è stato possibile completare l’operazione. Riprova.";
+}
+
+export function getAdminLoginErrorMessage(
+  error: DatabaseError | null | undefined,
+) {
+  const code = error?.code?.toLowerCase();
+  const message = error?.message?.toLowerCase() ?? "";
+
+  if (
+    code === "invalid_credentials" ||
+    message.includes("invalid login credentials")
+  ) {
+    return "Email o password non corretti. Controlla i dati e riprova.";
+  }
+  if (
+    code === "email_not_confirmed" ||
+    message.includes("email not confirmed")
+  ) {
+    return "L’indirizzo email non è ancora confermato. Apri il messaggio ricevuto da Supabase e conferma l’account.";
+  }
+  if (
+    error?.status === 429 ||
+    code === "over_request_rate_limit" ||
+    message.includes("too many requests")
+  ) {
+    return "Sono stati fatti troppi tentativi. Attendi qualche minuto e riprova.";
+  }
+  if (
+    message.includes("failed to fetch") ||
+    message.includes("network")
+  ) {
+    return "Connessione non disponibile. Controlla internet e riprova.";
+  }
+  return "Non è stato possibile accedere. Riprova tra poco.";
+}
+
+export function getAdminAccessReasonMessage(reason?: string) {
+  if (reason === "forbidden") {
+    return "L’account è valido, ma non è abilitato come amministratore.";
+  }
+  if (reason === "profile-error") {
+    return "Non è stato possibile verificare il profilo amministratore. Riprova tra poco.";
+  }
+  if (reason === "signed-out") {
+    return "La sessione è scaduta. Accedi di nuovo.";
+  }
+  return "";
 }

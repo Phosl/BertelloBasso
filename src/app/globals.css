@@ -3545,7 +3545,22 @@ h4 {
 .admin-login form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
+}
+
+.admin-login form label {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 17px;
+  font-weight: 650;
+  gap: 10px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.admin-login input {
+  font-size: 20px;
+  min-height: 58px;
+  padding: 13px 15px;
 }
 
 .admin-login form button,
@@ -3554,18 +3569,19 @@ h4 {
   border: 0;
   border-radius: 3px;
   color: white;
-  font-size: 10px;
-  min-height: 44px;
+  font-size: 18px;
+  font-weight: 650;
+  min-height: 56px;
 }
 
 .admin-login__help {
   color: #83887f;
-  font-size: 8px;
+  font-size: 15px;
 }
 
 .demo-login p {
   color: #676d64;
-  font-size: 11px;
+  font-size: 18px;
   line-height: 1.6;
   margin-bottom: 18px;
 }
@@ -3575,8 +3591,38 @@ h4 {
 }
 
 .login-error {
+  background: #fff0ed;
+  border: 1px solid #e0b4ad;
+  border-radius: 4px;
   color: #9d392e;
-  font-size: 9px;
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.login-password-field {
+  display: block;
+  position: relative;
+}
+
+.login-password-field input {
+  padding-right: 118px;
+  width: 100%;
+}
+
+.admin-login form .login-password-toggle {
+  align-items: center;
+  background: transparent;
+  color: #394034;
+  display: inline-flex;
+  font-size: 15px;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 10px;
+  position: absolute;
+  right: 7px;
+  top: 7px;
 }
 
 .admin-loading {

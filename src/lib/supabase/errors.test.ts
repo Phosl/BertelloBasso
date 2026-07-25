@@ -1,5 +1,10 @@
 import {describe, expect, it} from "vitest";
-import {getAdminErrorMessage, isMissingSchemaError} from "./errors";
+import {
+  getAdminAccessReasonMessage,
+  getAdminErrorMessage,
+  getAdminLoginErrorMessage,
+  isMissingSchemaError,
+} from "./errors";
 
 describe("Supabase gallery rollout errors", () => {
   it("recognises a missing table by structured code", () => {
@@ -15,5 +20,14 @@ describe("Supabase gallery rollout errors", () => {
   it("does not describe insufficient permissions as missing schema", () => {
     expect(isMissingSchemaError({code: "42501"})).toBe(false);
     expect(getAdminErrorMessage({code: "42501"})).toContain("permessi");
+  });
+
+  it("distinguishes invalid credentials from a missing admin role", () => {
+    expect(
+      getAdminLoginErrorMessage({code: "invalid_credentials"}),
+    ).toContain("Email o password");
+    expect(getAdminAccessReasonMessage("forbidden")).toContain(
+      "amministratore",
+    );
   });
 });

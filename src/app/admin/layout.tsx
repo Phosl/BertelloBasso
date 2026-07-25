@@ -11,7 +11,7 @@ export default async function AdminLayout({children}: {children: ReactNode}) {
   const auth = await requireAdmin();
 
   if (auth.configured && !isLogin && !auth.user) {
-    redirect("/admin/accesso");
+    redirect(`/admin/accesso?reason=${auth.reason}`);
   }
   if (auth.configured && isLogin && auth.user) {
     redirect("/admin");

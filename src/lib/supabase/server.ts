@@ -37,21 +37,68 @@ export async function getServerSupabase() {
 
 export async function requireAdmin() {
   const client = await getServerSupabase();
-  if (!client) return {configured: false as const, user: null};
+  if (!client) {
+    return {
+      configured: false as const,
+      reason: "unconfigured" as const,
+      user: null,
+    };
+  }
 
   const {
     data: {user},
+    error: userError,
   } = await client.auth.getUser();
-  if (!user) return {configured: true as const, user: null};
+  if (!user) {
+    const sessionMissing =
+      userError?.name === "AuthSessionMissingError" ||
+      /auth session missing/i.test(userError?.message ?? "");
+    if (userError && !sessionMissing && userError.status !== 401) {
+      console.error(JSON.stringify({
+        scope: "admin_auth",
+        operation: "get_user",
+        resource: "auth",
+        code: userError.code ?? String(userError.status),
+      }));
+    }
+    return {
+      configured: true as const,
+      reason: "signed-out" as const,
+      user: null,
+    };
+  }
 
-  const {data: profile} = await client
+  const {data: profile, error: profileError} = await client
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profileError) {
+    console.error(JSON.stringify({
+      scope: "admin_auth",
+      operation: "read_role",
+      resource: "profiles",
+      code: profileError.code,
+    }));
+    return {
+      configured: true as const,
+      reason: "profile-error" as const,
+      user: null,
+    };
+  }
+
+  if (profile?.role !== "admin") {
+    return {
+      configured: true as const,
+      reason: "forbidden" as const,
+      user: null,
+    };
+  }
+
   return {
     configured: true as const,
-    user: profile?.role === "admin" ? user : null,
+    reason: "authorized" as const,
+    user,
   };
 }
