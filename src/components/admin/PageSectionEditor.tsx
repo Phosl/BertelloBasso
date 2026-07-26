@@ -452,6 +452,10 @@ export function PageSectionEditor({
             />
           </label>
         </div>
+        <p className="admin-field-help">
+          Le coordinate servono per posizionare con precisione la mappa. Puoi
+          lasciarle vuote e aggiungerle in seguito.
+        </p>
         <label className="admin-check">
           <input
             checked={section.showMap}

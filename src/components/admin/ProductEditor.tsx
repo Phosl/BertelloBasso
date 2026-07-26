@@ -32,14 +32,14 @@ import {productPublicationIssues} from "@/lib/cms/validation";
 import {MediaPicker} from "./MediaPicker";
 import {useAdminData} from "./AdminDataProvider";
 
-const visualOptions: Product["visual"][] = [
-  "oil",
-  "white-wine",
-  "red-wine",
-  "gin",
-  "sauce",
-  "tomato-chips",
-  "polenta-chips",
+const visualOptions: Array<{label: string; value: Product["visual"]}> = [
+  {label: "Bottiglia di olio", value: "oil"},
+  {label: "Bottiglia di vino bianco", value: "white-wine"},
+  {label: "Bottiglia di vino rosso", value: "red-wine"},
+  {label: "Bottiglia di gin", value: "gin"},
+  {label: "Vasetto di salsa piccante", value: "sauce"},
+  {label: "Chips di pomodoro", value: "tomato-chips"},
+  {label: "Chips di semi e polenta", value: "polenta-chips"},
 ];
 
 export function ProductEditor({id}: {id: string}) {
@@ -242,6 +242,12 @@ export function ProductEditor({id}: {id: string}) {
     eyebrow: "",
     description: "",
   };
+  const statusLabel =
+    product.status === "published"
+      ? "Pubblicato"
+      : product.status === "archived"
+        ? "Archiviato"
+        : "Bozza";
 
   return (
     <div className="admin-page cms-editor">
@@ -251,8 +257,12 @@ export function ProductEditor({id}: {id: string}) {
             <ArrowLeft aria-hidden="true" size={18} />
             Tutti i prodotti
           </TransitionLink>
-          <p className="eyebrow">Prodotto · {product.status}</p>
+          <p className="eyebrow">Prodotto · {statusLabel}</p>
           <h1>{product.content.name || "Nuovo prodotto"}</h1>
+          <p>
+            Salva la bozza per conservare le modifiche. Il sito cambia soltanto
+            quando premi “Pubblica”.
+          </p>
         </div>
         <div className="cms-editor__publish-actions">
           <button className="admin-secondary-action" onClick={() => void persist(product)} type="button">
@@ -284,7 +294,7 @@ export function ProductEditor({id}: {id: string}) {
             </header>
             <div className="admin-language-tabs">
               <button aria-pressed={language === "it"} onClick={() => setLanguage("it")} type="button">Italiano <span>Obbligatorio</span></button>
-              <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">English <span>Facoltativo</span></button>
+              <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">Inglese <span>Facoltativo</span></button>
             </div>
             {language === "it" ? (
               <>
@@ -294,9 +304,9 @@ export function ProductEditor({id}: {id: string}) {
               </>
             ) : (
               <>
-                <label><span>Product name</span><input value={translation.name} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, name: event.target.value}}}}))} /></label>
-                <label><span>Eyebrow</span><input value={translation.eyebrow} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, eyebrow: event.target.value}}}}))} /></label>
-                <label><span>Description</span><textarea rows={5} value={translation.description} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, description: event.target.value}}}}))} /></label>
+                <label><span>Nome in inglese</span><input value={translation.name} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, name: event.target.value}}}}))} /></label>
+                <label><span>Soprattitolo in inglese</span><input value={translation.eyebrow} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, eyebrow: event.target.value}}}}))} /></label>
+                <label><span>Descrizione in inglese</span><textarea rows={5} value={translation.description} onChange={(event) => update((item) => ({...item, content: {...item.content, translations: {en: {...translation, description: event.target.value}}}}))} /></label>
               </>
             )}
           </section>
@@ -305,7 +315,7 @@ export function ProductEditor({id}: {id: string}) {
             <header><span>2</span><div><h2>Vendita e disponibilità</h2><p>Formati e prezzi mostrati sul sito.</p></div></header>
             <div className="cms-form-grid">
               <label><span>Categoria</span><select value={product.content.category} onChange={(event) => update((item) => ({...item, content: {...item.content, category: event.target.value as ProductDraft["content"]["category"]}}))}><option value="olio">Olio</option><option value="vino">Vino</option><option value="distillati">Distillati</option><option value="dispensa">Dispensa</option></select></label>
-              <label><span>Disponibilità</span><select value={product.content.availability} onChange={(event) => update((item) => ({...item, content: {...item.content, availability: event.target.value as ProductDraft["content"]["availability"]}}))}><option value="available">Disponibile</option><option value="coming_soon">Coming soon</option><option value="seasonal">Stagionale</option></select></label>
+              <label><span>Disponibilità</span><select value={product.content.availability} onChange={(event) => update((item) => ({...item, content: {...item.content, availability: event.target.value as ProductDraft["content"]["availability"]}}))}><option value="available">Disponibile</option><option value="coming_soon">In arrivo</option><option value="seasonal">Stagionale</option></select></label>
             </div>
             <label className="admin-check"><input checked={product.content.featured} onChange={(event) => update((item) => ({...item, content: {...item.content, featured: event.target.checked}}))} type="checkbox" /><span>Mostra tra i prodotti in evidenza</span></label>
             <div className="cms-format-list">
@@ -328,6 +338,10 @@ export function ProductEditor({id}: {id: string}) {
               onChange={changeMedia}
               selected={product.media.map((item) => item.asset)}
             />
+            <p className="admin-field-help">
+              La prima fotografia sarà la copertina. I cursori permettono di
+              scegliere quale parte dell’immagine tenere al centro.
+            </p>
             {product.media.length > 0 ? (
               <div className="cms-media-order">
                 {product.media.map((item, index) => (
@@ -376,18 +390,18 @@ export function ProductEditor({id}: {id: string}) {
           </section>
 
           <section className="cms-editor-section">
-            <header><span>4</span><div><h2>Aspetto di riserva</h2><p>Usato se non è stata caricata una fotografia.</p></div></header>
+            <header><span>4</span><div><h2>Immagine di riserva</h2><p>Usata soltanto quando non è stata caricata una fotografia.</p></div></header>
             <div className="cms-form-grid">
-              <label><span>Illustrazione</span><select value={product.content.visual} onChange={(event) => update((item) => ({...item, content: {...item.content, visual: event.target.value as Product["visual"]}}))}>{visualOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
+              <label><span>Tipo di illustrazione</span><select value={product.content.visual} onChange={(event) => update((item) => ({...item, content: {...item.content, visual: event.target.value as Product["visual"]}}))}>{visualOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
               <label><span>Colore</span><input type="color" value={product.content.accent} onChange={(event) => update((item) => ({...item, content: {...item.content, accent: event.target.value}}))} /></label>
             </div>
           </section>
 
           <section className="cms-editor-section">
-            <header><span>5</span><div><h2>Indirizzo e SEO</h2><p>Lo slug non cambia dopo la prima pubblicazione.</p></div></header>
-            <label><span>Indirizzo pagina</span><input disabled={Boolean(product.publishedAt)} value={product.slug} onChange={(event) => update((item) => ({...item, slug: event.target.value}))} /></label>
-            <label><span>Titolo SEO italiano</span><input value={product.content.seo.title.it} onChange={(event) => update((item) => ({...item, content: {...item.content, seo: {...item.content.seo, title: {...item.content.seo.title, it: event.target.value}}}}))} /></label>
-            <label><span>Descrizione SEO italiana</span><textarea rows={3} value={product.content.seo.description.it} onChange={(event) => update((item) => ({...item, content: {...item.content, seo: {...item.content.seo, description: {...item.content.seo.description, it: event.target.value}}}}))} /></label>
+            <header><span>5</span><div><h2>Indirizzo della pagina e Google</h2><p>Queste informazioni aiutano a riconoscere la pagina nei risultati di ricerca.</p></div></header>
+            <label><span>Indirizzo della pagina</span><small className="admin-field-help">Dopo la prima pubblicazione non potrà più essere modificato.</small><input disabled={Boolean(product.publishedAt)} value={product.slug} onChange={(event) => update((item) => ({...item, slug: event.target.value}))} /></label>
+            <label><span>Titolo italiano per Google</span><input value={product.content.seo.title.it} onChange={(event) => update((item) => ({...item, content: {...item.content, seo: {...item.content.seo, title: {...item.content.seo.title, it: event.target.value}}}}))} /></label>
+            <label><span>Descrizione italiana per Google</span><textarea rows={3} value={product.content.seo.description.it} onChange={(event) => update((item) => ({...item, content: {...item.content, seo: {...item.content.seo, description: {...item.content.seo.description, it: event.target.value}}}}))} /></label>
           </section>
 
           <section className="cms-danger-zone">

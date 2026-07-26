@@ -49,7 +49,10 @@ export function GalleryPhotoTextEditor({
       <summary>Didascalia e descrizione accessibile</summary>
       <div>
         <label>
-          <span>Testo alternativo italiano</span>
+          <span>Descrizione accessibile in italiano</span>
+          <small className="admin-field-help">
+            Descrivi brevemente ciò che si vede nella fotografia.
+          </small>
           <input
             disabled={disabled}
             onChange={(event) => setAltText(event.target.value)}
@@ -66,7 +69,10 @@ export function GalleryPhotoTextEditor({
           />
         </label>
         <label>
-          <span>Testo alternativo inglese</span>
+          <span>Descrizione accessibile in inglese</span>
+          <small className="admin-field-help">
+            Se vuota, verrà usata la descrizione italiana.
+          </small>
           <input
             disabled={disabled}
             onChange={(event) => setEnglishAltText(event.target.value)}

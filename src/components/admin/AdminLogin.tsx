@@ -137,8 +137,9 @@ export function AdminLogin({reason}: {reason?: string}) {
           ) : (
             <div className="demo-login">
               <p>
-                Supabase non è ancora configurato. Puoi entrare nella demo
-                completa del gestionale: le modifiche restano nel browser.
+                Il collegamento al sito non è ancora configurato. Puoi entrare
+                nella demo completa del gestionale: le modifiche restano in
+                questo browser.
               </p>
               <button onClick={() => router.replace("/admin")} type="button">
                 Entra nella demo

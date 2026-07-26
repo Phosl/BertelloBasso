@@ -154,7 +154,7 @@ export function SiteSettingsEditor() {
       {notice ? <div className="gallery-admin-notice">{notice}</div> : null}
       <div className="admin-language-tabs">
         <button aria-pressed={language === "it"} onClick={() => setLanguage("it")} type="button">Italiano</button>
-        <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">English</button>
+        <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">Inglese</button>
       </div>
 
       <div className="settings-editor__grid">
@@ -167,6 +167,7 @@ export function SiteSettingsEditor() {
             <label><span>Latitudine</span><input step="any" type="number" value={settings.draft.latitude ?? ""} onChange={(event) => update((content) => ({...content, latitude: event.target.value ? Number(event.target.value) : null}))} /></label>
             <label><span>Longitudine</span><input step="any" type="number" value={settings.draft.longitude ?? ""} onChange={(event) => update((content) => ({...content, longitude: event.target.value ? Number(event.target.value) : null}))} /></label>
           </div>
+          <p className="admin-field-help">Le coordinate servono per mostrare correttamente la posizione sulla mappa.</p>
           <label><span>Profilo Instagram</span><input placeholder="https://instagram.com/…" value={settings.draft.instagramUrl} onChange={(event) => update((content) => ({...content, instagramUrl: event.target.value}))} /></label>
         </section>
 
@@ -178,9 +179,9 @@ export function SiteSettingsEditor() {
         </section>
 
         <section className="cms-editor-section">
-          <header><span>3</span><div><h2>SEO predefinito</h2><p>Usato quando una pagina non ha testi specifici.</p></div></header>
-          <label><span>Titolo</span><input value={language === "it" ? settings.draft.defaultSeo.title.it : settings.draft.defaultSeo.title.en ?? ""} onChange={(event) => update((content) => ({...content, defaultSeo: {...content.defaultSeo, title: localizedValue(content.defaultSeo.title, event.target.value)}}))} /></label>
-          <label><span>Descrizione</span><textarea rows={4} value={language === "it" ? settings.draft.defaultSeo.description.it : settings.draft.defaultSeo.description.en ?? ""} onChange={(event) => update((content) => ({...content, defaultSeo: {...content.defaultSeo, description: localizedValue(content.defaultSeo.description, event.target.value)}}))} /></label>
+          <header><span>3</span><div><h2>Titolo e descrizione per Google</h2><p>Usati quando una pagina non ha testi specifici per i motori di ricerca.</p></div></header>
+          <label><span>Titolo predefinito</span><input value={language === "it" ? settings.draft.defaultSeo.title.it : settings.draft.defaultSeo.title.en ?? ""} onChange={(event) => update((content) => ({...content, defaultSeo: {...content.defaultSeo, title: localizedValue(content.defaultSeo.title, event.target.value)}}))} /></label>
+          <label><span>Descrizione predefinita</span><textarea rows={4} value={language === "it" ? settings.draft.defaultSeo.description.it : settings.draft.defaultSeo.description.en ?? ""} onChange={(event) => update((content) => ({...content, defaultSeo: {...content.defaultSeo, description: localizedValue(content.defaultSeo.description, event.target.value)}}))} /></label>
         </section>
       </div>
 
@@ -193,7 +194,7 @@ export function SiteSettingsEditor() {
             return (
               <article key={entry.pageId}>
                 <div><strong>{localizeText(page.draft.title, "it")}</strong><small>/{page.slug}</small></div>
-                <label><span>Etichetta {language.toUpperCase()}</span><input value={language === "it" ? entry.label.it : entry.label.en ?? ""} onChange={(event) => updateNavigation(entry.pageId, {label: localizedValue(entry.label, event.target.value)})} /></label>
+                <label><span>Testo nel menu ({language === "it" ? "italiano" : "inglese"})</span><input value={language === "it" ? entry.label.it : entry.label.en ?? ""} onChange={(event) => updateNavigation(entry.pageId, {label: localizedValue(entry.label, event.target.value)})} /></label>
                 <label className="admin-check"><input checked={entry.showHeader} onChange={(event) => updateNavigation(entry.pageId, {showHeader: event.target.checked})} type="checkbox" /><span>Mostra nel menu</span></label>
                 <label className="admin-check"><input checked={entry.showFooter} onChange={(event) => updateNavigation(entry.pageId, {showFooter: event.target.checked})} type="checkbox" /><span>Mostra nel footer</span></label>
                 <div><button disabled={index === 0} onClick={() => moveNavigation(index, -1)} type="button"><ArrowUp size={17} /> Prima</button><button disabled={index === settings.draft.navigation.length - 1} onClick={() => moveNavigation(index, 1)} type="button"><ArrowDown size={17} /> Dopo</button></div>

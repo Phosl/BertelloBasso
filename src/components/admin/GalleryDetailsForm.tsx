@@ -58,7 +58,7 @@ export function GalleryDetailsForm({
             onClick={() => onLocaleChange("en")}
             type="button"
           >
-            <strong>English</strong>
+            <strong>Inglese</strong>
             <span>Facoltativo</span>
           </button>
         </div>
@@ -88,7 +88,7 @@ export function GalleryDetailsForm({
         ) : (
           <div className="gallery-editor-fields">
             <label>
-              <span>English title</span>
+              <span>Titolo in inglese</span>
               <input
                 maxLength={120}
                 onChange={(event) =>
@@ -99,7 +99,7 @@ export function GalleryDetailsForm({
               />
             </label>
             <label>
-              <span>English text</span>
+              <span>Testo in inglese</span>
               <textarea
                 onChange={(event) =>
                   onChangeEnglish({description: event.target.value})
@@ -140,7 +140,7 @@ export function GalleryDetailsForm({
             />
           </label>
           <label>
-            <span>Location in English</span>
+            <span>Località in inglese</span>
             <input
               onChange={(event) =>
                 onChangeEnglish({locationName: event.target.value})
@@ -192,6 +192,10 @@ export function GalleryDetailsForm({
             />
           </label>
         </div>
+        <p className="admin-field-help">
+          Le coordinate servono soltanto per posizionare con precisione la
+          mappa. Puoi lasciarle vuote e aggiungerle in seguito.
+        </p>
       </section>
     </>
   );

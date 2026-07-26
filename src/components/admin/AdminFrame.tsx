@@ -117,7 +117,7 @@ export function AdminFrame({children}: {children: ReactNode}) {
                 configured ? "is-connected" : "is-demo"
               }`}
             />
-            {configured ? "Supabase connesso" : "Modalità demo locale"}
+            {configured ? "Sito collegato" : "Modalità prova locale"}
           </div>
           <span className={`save-indicator is-${saveState}`} aria-live="polite">
             {saveState === "saving"
@@ -139,10 +139,10 @@ export function AdminFrame({children}: {children: ReactNode}) {
         {!configured ? (
           <div className="admin-mode-banner">
             <div>
-              <strong>Stai lavorando in locale.</strong>
+              <strong>Stai usando la modalità prova.</strong>
               <span>
-                Le modifiche restano in questo browser. Collega Supabase per
-                pubblicarle sul sito.
+                Le modifiche restano soltanto in questo browser e non vengono
+                pubblicate sul sito.
               </span>
             </div>
             <code>.env.local</code>

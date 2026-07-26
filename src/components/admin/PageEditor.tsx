@@ -220,6 +220,12 @@ export function PageEditor({id}: {id: string}) {
 
   const currentTitle =
     language === "it" ? page.draft.title.it : page.draft.title.en ?? "";
+  const statusLabel =
+    page.status === "published"
+      ? "Pubblicata"
+      : page.status === "archived"
+        ? "Archiviata"
+        : "Bozza";
 
   return (
     <div className="admin-page cms-editor cms-page-editor">
@@ -229,8 +235,12 @@ export function PageEditor({id}: {id: string}) {
             <ArrowLeft aria-hidden="true" size={18} />
             Tutte le pagine
           </TransitionLink>
-          <p className="eyebrow">{page.pageKey ? "Pagina di sistema" : "Pagina personalizzata"} · {page.status}</p>
+          <p className="eyebrow">{page.pageKey ? "Pagina di sistema" : "Pagina personalizzata"} · {statusLabel}</p>
           <h1>{localizeText(page.draft.title, "it")}</h1>
+          <p>
+            Salva la bozza per conservare le modifiche. Il sito cambia soltanto
+            quando premi “Pubblica”.
+          </p>
         </div>
         <div className="cms-editor__publish-actions">
           <TransitionLink className="admin-secondary-action" href={`/admin/pagine/${page.id}/anteprima`}>
@@ -259,11 +269,11 @@ export function PageEditor({id}: {id: string}) {
 
       <div className="admin-language-tabs cms-page-language">
         <button aria-pressed={language === "it"} onClick={() => setLanguage("it")} type="button">Italiano <span>Obbligatorio</span></button>
-        <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">English <span>Fallback italiano</span></button>
+        <button aria-pressed={language === "en"} onClick={() => setLanguage("en")} type="button">Inglese <span>Usa l’italiano se vuoto</span></button>
       </div>
 
       <section className="cms-editor-section cms-page-basics">
-        <header><span>1</span><div><h2>Pagina e motori di ricerca</h2><p>Titolo, indirizzo e descrizione condivisa.</p></div></header>
+        <header><span>1</span><div><h2>Pagina e risultati di Google</h2><p>Titolo, indirizzo e descrizione mostrata dai motori di ricerca.</p></div></header>
         <label>
           <span>Titolo pagina</span>
           <input
@@ -284,12 +294,13 @@ export function PageEditor({id}: {id: string}) {
         </label>
         {!page.pageKey ? (
           <label>
-            <span>Indirizzo pagina</span>
+            <span>Indirizzo della pagina</span>
+            <small className="admin-field-help">Dopo la prima pubblicazione non potrà più essere modificato.</small>
             <input disabled={Boolean(page.publishedAt)} onChange={(event) => update((current) => ({...current, slug: event.target.value}))} value={page.slug} />
           </label>
         ) : null}
         <label>
-          <span>Titolo SEO</span>
+          <span>Titolo per Google</span>
           <input
             onChange={(event) =>
               update((current) => ({
@@ -310,7 +321,7 @@ export function PageEditor({id}: {id: string}) {
           />
         </label>
         <label>
-          <span>Descrizione SEO</span>
+          <span>Descrizione per Google</span>
           <textarea
             onChange={(event) =>
               update((current) => ({

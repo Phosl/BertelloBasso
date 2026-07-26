@@ -216,10 +216,10 @@ export function MediaManager() {
             <header><div><p className="eyebrow">Dettagli immagine</p><h2>{selected.originalName}</h2></div><button onClick={() => setSelectedId(null)} type="button">Chiudi</button></header>
             <img alt={selected.alt.it || selected.originalName} height={selected.height} src={selected.imageUrl} width={selected.width} />
             <div className="cms-form-grid">
-              <label><span>Testo alternativo italiano</span><input value={selected.alt.it} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, alt: {...item.alt, it: event.target.value}} : item))} /></label>
-              <label><span>Alternative text English</span><input value={selected.alt.en ?? ""} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, alt: {...item.alt, en: event.target.value}} : item))} /></label>
+              <label><span>Descrizione accessibile in italiano</span><small className="admin-field-help">Descrivi brevemente ciò che si vede nell’immagine.</small><input value={selected.alt.it} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, alt: {...item.alt, it: event.target.value}} : item))} /></label>
+              <label><span>Descrizione accessibile in inglese</span><small className="admin-field-help">Se vuota, verrà usata la descrizione italiana.</small><input value={selected.alt.en ?? ""} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, alt: {...item.alt, en: event.target.value}} : item))} /></label>
               <label><span>Didascalia italiana</span><textarea rows={3} value={selected.caption.it} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, caption: {...item.caption, it: event.target.value}} : item))} /></label>
-              <label><span>Caption English</span><textarea rows={3} value={selected.caption.en ?? ""} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, caption: {...item.caption, en: event.target.value}} : item))} /></label>
+              <label><span>Didascalia in inglese</span><textarea rows={3} value={selected.caption.en ?? ""} onChange={(event) => setAssets((items) => items.map((item) => item.id === selected.id ? {...item, caption: {...item.caption, en: event.target.value}} : item))} /></label>
             </div>
             <div className="cms-editor__publish-actions">
               <button className="admin-primary-action" onClick={() => void save(selected)} type="button"><Save size={19} /> Salva testi</button>
