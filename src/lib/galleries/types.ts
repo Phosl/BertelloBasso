@@ -75,9 +75,7 @@ export type ProcessedGalleryMedia = {
   sourceName: string;
   media: File;
   thumbnail: File;
-  original: File | null;
   mediaType: GalleryMediaType;
-  sourceType: GallerySourceType;
   mimeType: string;
   width: number;
   height: number;

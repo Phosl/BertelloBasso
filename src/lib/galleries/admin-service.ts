@@ -186,21 +186,12 @@ export async function uploadGalleryPhoto(
 ): Promise<GalleryPhoto> {
   const client = galleryClient();
   const photoId = crypto.randomUUID();
-  const videoExtension =
-    processed.mimeType === "video/webm"
-      ? "webm"
-      : processed.mimeType === "video/quicktime"
-        ? "mov"
-        : "mp4";
   const storagePath = `${gallery.id}/${photoId}/${
     processed.mediaType === "video"
-      ? `video.${videoExtension}`
+      ? "video.mp4"
       : "display.webp"
   }`;
   const thumbnailPath = `${gallery.id}/${photoId}/thumbnail.webp`;
-  const originalPath = processed.original
-    ? `${gallery.id}/${photoId}/original.dng`
-    : null;
   const uploadedPaths: string[] = [];
 
   const mediaUpload = await client.storage
@@ -226,21 +217,6 @@ export async function uploadGalleryPhoto(
   }
   uploadedPaths.push(thumbnailPath);
 
-  if (processed.original && originalPath) {
-    const originalUpload = await client.storage
-      .from(galleryBucket)
-      .upload(originalPath, processed.original, {
-        cacheControl: "31536000",
-        contentType: "image/x-adobe-dng",
-        upsert: false,
-      });
-    if (originalUpload.error) {
-      await client.storage.from(galleryBucket).remove(uploadedPaths);
-      throw originalUpload.error;
-    }
-    uploadedPaths.push(originalPath);
-  }
-
   const fallbackAlt = `${gallery.title}, ${gallery.locationName || "Umbria"}`;
   const legacyMetadata = {
     id: photoId,
@@ -256,9 +232,9 @@ export async function uploadGalleryPhoto(
   };
   const metadata = {
     ...legacyMetadata,
-    original_path: originalPath,
+    original_path: null,
     media_type: processed.mediaType,
-    source_type: processed.sourceType,
+    source_type: "standard",
     mime_type: processed.mimeType,
     source_name: processed.sourceName,
     duration_ms: processed.durationMs,
@@ -269,11 +245,7 @@ export async function uploadGalleryPhoto(
     .insert(metadata)
     .select("*")
     .single();
-  if (
-    isMissingSchemaError(result.error) &&
-    processed.mediaType === "image" &&
-    processed.sourceType === "standard"
-  ) {
+  if (isMissingSchemaError(result.error) && processed.mediaType === "image") {
     result = await client
       .from("gallery_photos")
       .insert(legacyMetadata)

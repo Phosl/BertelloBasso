@@ -45,7 +45,7 @@ export function GalleryManager() {
         <div>
           <p className="eyebrow">Fotografie</p>
           <h1>Gallerie</h1>
-          <p>Crea, ordina e pubblica gallerie con fotografie, DNG e video.</p>
+          <p>Crea, ordina e pubblica gallerie con fotografie e video.</p>
         </div>
         {configured ? (
           <TransitionLink

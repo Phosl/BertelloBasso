@@ -211,7 +211,7 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
     if (
       archived &&
       !window.confirm(
-        "Vuoi archiviare questa galleria? Foto, DNG e video resteranno conservati.",
+        "Vuoi archiviare questa galleria? Foto e video resteranno conservati.",
       )
     ) {
       return;

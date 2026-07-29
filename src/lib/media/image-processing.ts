@@ -2,16 +2,9 @@
 
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
+import {validateImageFile} from "./file-validation";
 
-export const maxSourceBytes = 25 * 1024 * 1024;
-
-const acceptedTypes = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-]);
+export {maxSourceBytes, validateImageFile} from "./file-validation";
 
 export type ProcessedUploadImage = {
   sourceName: string;
@@ -33,19 +26,6 @@ function isHeic(file: File) {
     extension(file) === "heic" ||
     extension(file) === "heif"
   );
-}
-
-export function validateImageFile(file: File) {
-  const knownExtension = ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(
-    extension(file),
-  );
-  if ((!file.type || !acceptedTypes.has(file.type)) && !knownExtension) {
-    return "Formato non supportato. Usa JPG, PNG, WebP o HEIC.";
-  }
-  if (file.size > maxSourceBytes) {
-    return "Il file supera 25 MB.";
-  }
-  return "";
 }
 
 async function convertHeic(file: File) {

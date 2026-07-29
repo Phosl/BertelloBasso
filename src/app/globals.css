@@ -4509,23 +4509,6 @@ h4 {
   text-decoration: underline;
 }
 
-.pswp__button--bertello-dng {
-  align-items: center;
-  color: white;
-  display: flex;
-  font-family: var(--font-mono), monospace;
-  font-size: 12px;
-  font-weight: 700;
-  justify-content: center;
-  padding: 0 14px;
-  text-decoration: none;
-  width: auto;
-}
-
-.pswp__button--bertello-dng[hidden] {
-  display: none !important;
-}
-
 .pswp__bertello-caption {
   bottom: 22px;
   color: white;
@@ -5157,6 +5140,66 @@ h4 {
   opacity: 0.45;
 }
 
+.gallery-video-guide {
+  background: #f4f1e9;
+  border: 2px solid #d8d0bd;
+  border-radius: 9px;
+  margin-top: 18px;
+}
+
+.gallery-video-guide summary {
+  align-items: center;
+  color: #293124;
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
+  font-weight: 750;
+  gap: 11px;
+  min-height: 58px;
+  padding: 13px 18px;
+}
+
+.gallery-video-guide summary::marker {
+  color: var(--olive);
+}
+
+.gallery-video-guide > div {
+  border-top: 1px solid #d8d0bd;
+  padding: 20px 22px 24px;
+}
+
+.gallery-video-guide p,
+.gallery-video-guide li {
+  color: #51584e;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.gallery-video-guide p {
+  margin: 0 0 14px;
+}
+
+.gallery-video-guide ol {
+  margin: 0 0 18px;
+  padding-left: 25px;
+}
+
+.gallery-video-guide li + li {
+  margin-top: 7px;
+}
+
+.gallery-video-guide a {
+  align-items: center;
+  color: #3e4c36;
+  display: inline-flex;
+  font-size: 17px;
+  font-weight: 750;
+  gap: 8px;
+  min-height: 46px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .gallery-upload-queue {
   border: 2px solid #e0e3db;
   border-radius: 9px;
@@ -5709,6 +5752,15 @@ h4 {
   .gallery-dropzone {
     min-height: 280px;
     padding: 34px 15px;
+  }
+
+  .gallery-video-guide summary {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .gallery-video-guide > div {
+    padding: 18px 16px 22px;
   }
 
   .gallery-upload-queue {

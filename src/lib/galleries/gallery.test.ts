@@ -1,6 +1,10 @@
 import {describe, expect, it} from "vitest";
 import {localizeGallery} from "./localize";
 import {mapGalleryPhoto} from "./mapper";
+import {
+  maxGalleryVideoBytes,
+  validateGalleryFile,
+} from "./image-processing";
 import type {Gallery} from "./types";
 import {getPublicationIssues} from "./validation";
 
@@ -125,5 +129,31 @@ describe("gallery media compatibility", () => {
 
     expect(photo.sourceType).toBe("dng");
     expect(photo.originalUrl).toBe("signed-dng");
+  });
+});
+
+describe("gallery video validation", () => {
+  function file(name: string, type: string, size: number) {
+    return {name, type, size} as File;
+  }
+
+  it("accepts a web-ready MP4 within the limit", () => {
+    expect(
+      validateGalleryFile(file("raccolta.mp4", "video/mp4", 8_000_000)),
+    ).toBe("");
+  });
+
+  it("explains how to fix a MOV video", () => {
+    expect(
+      validateGalleryFile(file("raccolta.mov", "video/quicktime", 8_000_000)),
+    ).toContain("non è in formato MP4");
+  });
+
+  it("rejects videos over the safe upload limit", () => {
+    expect(
+      validateGalleryFile(
+        file("raccolta.mp4", "video/mp4", maxGalleryVideoBytes + 1),
+      ),
+    ).toContain("supera 45 MB");
   });
 });

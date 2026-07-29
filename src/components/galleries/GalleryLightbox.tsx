@@ -97,32 +97,6 @@ export function GalleryLightbox({
             updateCaption();
           },
         });
-        lightbox?.pswp?.ui?.registerElement({
-          name: "bertello-dng-download",
-          className: "pswp__button--bertello-dng",
-          order: 8,
-          isButton: false,
-          tagName: "a",
-          html: "DNG ↓",
-          ariaLabel: "Scarica il file DNG originale",
-          appendTo: "bar",
-          onInit: (element, pswp) => {
-            const link = element as HTMLAnchorElement;
-            const updateDownload = () => {
-              const current = pswp.currSlide?.data.element;
-              const originalUrl =
-                current?.getAttribute("data-original-url") ?? "";
-              link.hidden = !originalUrl;
-              link.href = originalUrl || "#";
-              link.download =
-                current?.getAttribute("data-source-name") || "fotografia.dng";
-              link.target = "_blank";
-              link.rel = "noreferrer";
-            };
-            pswp.on("change", updateDownload);
-            updateDownload();
-          },
-        });
       });
       lightbox.init();
     });
@@ -143,13 +117,11 @@ export function GalleryLightbox({
           }`}
           data-caption={photo.caption}
           data-media-type={photo.mediaType}
-          data-original-url={photo.originalUrl || undefined}
           data-pswp-height={photo.height}
           data-pswp-type={
             photo.mediaType === "video" ? "video" : undefined
           }
           data-pswp-width={photo.width}
-          data-source-name={photo.sourceName || undefined}
           data-video-type={
             photo.mediaType === "video" ? photo.mimeType : undefined
           }
@@ -174,11 +146,7 @@ export function GalleryLightbox({
             </span>
           ) : null}
           <span className="photography-grid__format">
-            {photo.mediaType === "video"
-              ? "Video"
-              : photo.sourceType === "dng"
-                ? "DNG"
-                : ""}
+            {photo.mediaType === "video" ? "Video" : ""}
           </span>
           <span className="photography-grid__number">
             {String(index + 1).padStart(2, "0")}
