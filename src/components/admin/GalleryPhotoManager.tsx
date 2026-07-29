@@ -78,7 +78,7 @@ export function GalleryPhotoManager({
   const [dropActive, setDropActive] = useState(false);
   const [draggedPhotoId, setDraggedPhotoId] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
-  const disabled = gallery.status !== "draft";
+  const disabled = gallery.status === "archived";
 
   function updateQueue(id: string, patch: Partial<UploadEntry>) {
     setQueue((current) =>
@@ -273,8 +273,7 @@ export function GalleryPhotoManager({
 
       {disabled ? (
         <div className="gallery-editor-warning">
-          La galleria è {gallery.status === "published" ? "online" : "archiviata"}.
-          Riportala in bozza per modificare foto e video.
+          La galleria è archiviata. Ripristinala per modificare foto e video.
         </div>
       ) : null}
 

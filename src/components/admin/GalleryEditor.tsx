@@ -156,7 +156,7 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
       setDirty(false);
       setSaveState("saved");
       setSavedAt(new Date());
-      if (showNotice) setNotice("Bozza salvata correttamente.");
+      if (showNotice) setNotice("Modifiche salvate correttamente.");
       return true;
     } catch (error) {
       setNotice(getAdminErrorMessage(error as Error));
@@ -401,7 +401,7 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
           ) : (
             <Save aria-hidden="true" size={23} />
           )}
-          {saveState === "saving" ? "Salvataggio…" : "Salva bozza"}
+          {saveState === "saving" ? "Salvataggio…" : "Salva modifiche"}
         </button>
       </div>
     </div>
