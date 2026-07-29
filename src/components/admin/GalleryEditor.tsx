@@ -323,7 +323,11 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
             <span>4</span>
             <div>
               <h2>Pubblicazione</h2>
-              <p>Controlla che tutto sia pronto prima di renderla visibile.</p>
+              <p>
+                {gallery.status === "published"
+                  ? "È online: le modifiche salvate sono subito visibili."
+                  : "Controlla che tutto sia pronto prima di renderla visibile."}
+              </p>
             </div>
           </div>
           <Globe2 aria-hidden="true" size={32} />
