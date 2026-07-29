@@ -235,6 +235,19 @@ export function GalleryPhotoManager({
   }
 
   async function removePhoto(photo: GalleryPhoto) {
+    const replacementCover = gallery.photos.find(
+      (candidate) => candidate.id !== photo.id,
+    );
+    if (
+      gallery.status === "published" &&
+      photo.id === gallery.coverPhotoId &&
+      !replacementCover
+    ) {
+      setNotice(
+        "Questo è l’unico contenuto della galleria online. Aggiungi prima un’altra foto o un video, poi potrai eliminarlo.",
+      );
+      return;
+    }
     if (
       disabled ||
       !window.confirm(
@@ -246,6 +259,9 @@ export function GalleryPhotoManager({
     setWorking(true);
     setNotice("");
     try {
+      if (photo.id === gallery.coverPhotoId && replacementCover) {
+        await setGalleryCover(gallery.id, replacementCover.id);
+      }
       await deleteGalleryPhoto(photo);
       await onRefresh();
     } catch (error) {
