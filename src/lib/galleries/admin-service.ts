@@ -2,14 +2,20 @@
 
 import type {PostgrestError, SupabaseClient} from "@supabase/supabase-js";
 import {getBrowserSupabase} from "@/lib/supabase/browser";
-import {gallerySelect, mapGallery, mapGalleryPhoto} from "./mapper";
+import {isMissingSchemaError} from "@/lib/supabase/errors";
+import {
+  gallerySelect,
+  legacyGallerySelect,
+  mapGallery,
+  mapGalleryPhoto,
+} from "./mapper";
 import {galleryBucket, signGalleryPaths} from "./storage";
 import {galleryContentSchema} from "./validation";
 import type {
   Gallery,
   GalleryContentInput,
   GalleryPhoto,
-  ProcessedGalleryImage,
+  ProcessedGalleryMedia,
 } from "./types";
 
 function galleryClient(): SupabaseClient {
@@ -35,38 +41,42 @@ async function signRows(
     return photos.flatMap((photo) => [
       String(photo.storage_path ?? ""),
       String(photo.thumbnail_path ?? ""),
+      String(photo.original_path ?? ""),
     ]);
   });
   const signedUrls = await signGalleryPaths(client, paths);
   return rows.map((row) => mapGallery(row, signedUrls));
 }
 
+async function getGalleryRows(client: SupabaseClient, id?: string) {
+  const run = async (selection: string) => {
+    let query = client
+      .from("galleries")
+      .select(selection)
+      .order("sort_order")
+      .order("sort_order", {referencedTable: "gallery_photos"});
+    if (id) query = query.eq("id", id);
+    return query;
+  };
+
+  let result = await run(gallerySelect);
+  if (isMissingSchemaError(result.error)) {
+    result = await run(legacyGallerySelect);
+  }
+  throwIfError(result.error);
+  return (result.data ?? []) as unknown as Array<Record<string, unknown>>;
+}
+
 export async function getAdminGalleries(): Promise<Gallery[]> {
   const client = galleryClient();
-  const {data, error} = await client
-    .from("galleries")
-    .select(gallerySelect)
-    .order("sort_order")
-    .order("sort_order", {referencedTable: "gallery_photos"});
-  throwIfError(error);
-  return signRows(
-    client,
-    (data ?? []) as Array<Record<string, unknown>>,
-  );
+  return signRows(client, await getGalleryRows(client));
 }
 
 export async function getAdminGallery(id: string): Promise<Gallery | null> {
   const client = galleryClient();
-  const {data, error} = await client
-    .from("galleries")
-    .select(gallerySelect)
-    .eq("id", id)
-    .maybeSingle();
-  throwIfError(error);
-  if (!data) return null;
-  const [gallery] = await signRows(client, [
-    data as unknown as Record<string, unknown>,
-  ]);
+  const rows = await getGalleryRows(client, id);
+  if (!rows.length) return null;
+  const [gallery] = await signRows(client, rows);
   return gallery ?? null;
 }
 
@@ -171,23 +181,36 @@ export async function updateGalleryPhotoText(
 
 export async function uploadGalleryPhoto(
   gallery: Gallery,
-  processed: ProcessedGalleryImage,
+  processed: ProcessedGalleryMedia,
   options?: {sortOrder?: number; setAsCover?: boolean},
 ): Promise<GalleryPhoto> {
   const client = galleryClient();
   const photoId = crypto.randomUUID();
-  const storagePath = `${gallery.id}/${photoId}/display.webp`;
+  const videoExtension =
+    processed.mimeType === "video/webm"
+      ? "webm"
+      : processed.mimeType === "video/quicktime"
+        ? "mov"
+        : "mp4";
+  const storagePath = `${gallery.id}/${photoId}/${
+    processed.mediaType === "video"
+      ? `video.${videoExtension}`
+      : "display.webp"
+  }`;
   const thumbnailPath = `${gallery.id}/${photoId}/thumbnail.webp`;
+  const originalPath = processed.original
+    ? `${gallery.id}/${photoId}/original.dng`
+    : null;
   const uploadedPaths: string[] = [];
 
-  const imageUpload = await client.storage
+  const mediaUpload = await client.storage
     .from(galleryBucket)
-    .upload(storagePath, processed.image, {
+    .upload(storagePath, processed.media, {
       cacheControl: "31536000",
-      contentType: "image/webp",
+      contentType: processed.mimeType,
       upsert: false,
     });
-  if (imageUpload.error) throw imageUpload.error;
+  if (mediaUpload.error) throw mediaUpload.error;
   uploadedPaths.push(storagePath);
 
   const thumbnailUpload = await client.storage
@@ -203,23 +226,61 @@ export async function uploadGalleryPhoto(
   }
   uploadedPaths.push(thumbnailPath);
 
+  if (processed.original && originalPath) {
+    const originalUpload = await client.storage
+      .from(galleryBucket)
+      .upload(originalPath, processed.original, {
+        cacheControl: "31536000",
+        contentType: "image/x-adobe-dng",
+        upsert: false,
+      });
+    if (originalUpload.error) {
+      await client.storage.from(galleryBucket).remove(uploadedPaths);
+      throw originalUpload.error;
+    }
+    uploadedPaths.push(originalPath);
+  }
+
   const fallbackAlt = `${gallery.title}, ${gallery.locationName || "Umbria"}`;
-  const {data, error} = await client
+  const legacyMetadata = {
+    id: photoId,
+    gallery_id: gallery.id,
+    storage_path: storagePath,
+    thumbnail_path: thumbnailPath,
+    width: processed.width,
+    height: processed.height,
+    alt_text: fallbackAlt,
+    caption: "",
+    translations: {},
+    sort_order: options?.sortOrder ?? gallery.photos.length,
+  };
+  const metadata = {
+    ...legacyMetadata,
+    original_path: originalPath,
+    media_type: processed.mediaType,
+    source_type: processed.sourceType,
+    mime_type: processed.mimeType,
+    source_name: processed.sourceName,
+    duration_ms: processed.durationMs,
+  };
+
+  let result = await client
     .from("gallery_photos")
-    .insert({
-      id: photoId,
-      gallery_id: gallery.id,
-      storage_path: storagePath,
-      thumbnail_path: thumbnailPath,
-      width: processed.width,
-      height: processed.height,
-      alt_text: fallbackAlt,
-      caption: "",
-      translations: {},
-      sort_order: options?.sortOrder ?? gallery.photos.length,
-    })
+    .insert(metadata)
     .select("*")
     .single();
+  if (
+    isMissingSchemaError(result.error) &&
+    processed.mediaType === "image" &&
+    processed.sourceType === "standard"
+  ) {
+    result = await client
+      .from("gallery_photos")
+      .insert(legacyMetadata)
+      .select("*")
+      .single();
+  }
+  const {data, error} = result;
 
   if (error || !data) {
     await client.storage.from(galleryBucket).remove(uploadedPaths);
@@ -253,7 +314,11 @@ export async function deleteGalleryPhoto(photo: GalleryPhoto) {
 
   const {error: storageError} = await client.storage
     .from(galleryBucket)
-    .remove([photo.storagePath, photo.thumbnailPath]);
+    .remove(
+      [photo.storagePath, photo.thumbnailPath, photo.originalPath].filter(
+        (path): path is string => Boolean(path),
+      ),
+    );
   if (storageError) {
     console.error({
       scope: "admin_galleries",

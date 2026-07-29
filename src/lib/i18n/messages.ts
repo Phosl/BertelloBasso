@@ -85,14 +85,14 @@ export const messages = {
       intro:
         "Raccolti, persone, giornate di lavoro e piccoli dettagli. Un archivio vivo della nostra casa in Umbria.",
       discover: "Apri la galleria",
-      photoCount: "fotografie",
+      photoCount: "contenuti",
       back: "Tutte le fotografie",
       location: "Dove",
       openMaps: "Apri in Google Maps",
       emptyTitle: "La prima galleria sta arrivando.",
       emptyBody:
         "Stiamo scegliendo le fotografie. Torna presto per vedere la vita nei campi.",
-      viewerLabel: "Apri la fotografia a schermo intero",
+      viewerLabel: "Apri la foto o il video a schermo intero",
       mapUnavailable: "La mappa non è disponibile.",
     },
     story: {
@@ -270,14 +270,14 @@ export const messages = {
       intro:
         "Harvests, people, working days and small details. A living archive of our home in Umbria.",
       discover: "Open gallery",
-      photoCount: "photographs",
+      photoCount: "items",
       back: "All photography",
       location: "Where",
       openMaps: "Open in Google Maps",
       emptyTitle: "Our first gallery is coming.",
       emptyBody:
         "We are selecting the photographs. Come back soon to see life in the fields.",
-      viewerLabel: "Open photograph full screen",
+      viewerLabel: "Open photo or video full screen",
       mapUnavailable: "The map is unavailable.",
     },
     story: {

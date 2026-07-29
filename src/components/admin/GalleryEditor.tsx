@@ -211,7 +211,7 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
     if (
       archived &&
       !window.confirm(
-        "Vuoi archiviare questa galleria? Le fotografie resteranno conservate.",
+        "Vuoi archiviare questa galleria? Foto, DNG e video resteranno conservati.",
       )
     ) {
       return;
@@ -235,7 +235,7 @@ export function GalleryEditor({galleryId}: {galleryId: string}) {
       <div className="admin-page gallery-editor-unavailable">
         <h1>Collega Supabase</h1>
         <p>
-          Le fotografie richiedono un archivio online. Configura Supabase e
+          Foto e video richiedono un archivio online. Configura Supabase e
           applica la migrazione prima di continuare.
         </p>
         <TransitionLink className="admin-primary-action" href="/admin/gallerie">

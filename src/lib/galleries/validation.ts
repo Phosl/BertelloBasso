@@ -32,12 +32,12 @@ export function getPublicationIssues(gallery: Gallery) {
   const issues: string[] = [];
   if (!gallery.title.trim()) issues.push("Inserisci il titolo italiano.");
   if (!gallery.locationName.trim()) issues.push("Inserisci la località.");
-  if (gallery.photos.length === 0) issues.push("Aggiungi almeno una fotografia.");
+  if (gallery.photos.length === 0) issues.push("Aggiungi almeno una foto o un video.");
   if (
     !gallery.coverPhotoId ||
     !gallery.photos.some((photo) => photo.id === gallery.coverPhotoId)
   ) {
-    issues.push("Scegli la fotografia di copertina.");
+    issues.push("Scegli il contenuto di copertina.");
   }
   return issues;
 }

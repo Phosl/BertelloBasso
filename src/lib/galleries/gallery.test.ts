@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest";
 import {localizeGallery} from "./localize";
+import {mapGalleryPhoto} from "./mapper";
 import type {Gallery} from "./types";
 import {getPublicationIssues} from "./validation";
 
@@ -32,6 +33,12 @@ const gallery: Gallery = {
       galleryId: "gallery-1",
       storagePath: "display.webp",
       thumbnailPath: "thumbnail.webp",
+      originalPath: null,
+      mediaType: "image",
+      sourceType: "standard",
+      mimeType: "image/webp",
+      sourceName: "olive.jpg",
+      durationMs: null,
       width: 1600,
       height: 1200,
       altText: "Olive italiane",
@@ -41,6 +48,7 @@ const gallery: Gallery = {
       createdAt: "",
       imageUrl: "signed",
       thumbnailUrl: "signed-thumb",
+      originalUrl: "",
     },
   ],
   coverPhoto: null,
@@ -74,8 +82,48 @@ describe("gallery publication", () => {
     ).toEqual([
       "Inserisci il titolo italiano.",
       "Inserisci la località.",
-      "Aggiungi almeno una fotografia.",
-      "Scegli la fotografia di copertina.",
+      "Aggiungi almeno una foto o un video.",
+      "Scegli il contenuto di copertina.",
     ]);
+  });
+});
+
+describe("gallery media compatibility", () => {
+  it("maps an existing photo row with safe media defaults", () => {
+    const photo = mapGalleryPhoto({
+      id: "legacy-photo",
+      gallery_id: "gallery-1",
+      storage_path: "display.webp",
+      thumbnail_path: "thumbnail.webp",
+      width: 1200,
+      height: 800,
+    });
+
+    expect(photo.mediaType).toBe("image");
+    expect(photo.sourceType).toBe("standard");
+    expect(photo.mimeType).toBe("image/webp");
+    expect(photo.originalPath).toBeNull();
+    expect(photo.durationMs).toBeNull();
+  });
+
+  it("maps a DNG original and its signed download URL", () => {
+    const photo = mapGalleryPhoto(
+      {
+        id: "dng-photo",
+        gallery_id: "gallery-1",
+        storage_path: "display.webp",
+        thumbnail_path: "thumbnail.webp",
+        original_path: "original.dng",
+        media_type: "image",
+        source_type: "dng",
+        mime_type: "image/webp",
+        width: 1200,
+        height: 800,
+      },
+      new Map([["original.dng", "signed-dng"]]),
+    );
+
+    expect(photo.sourceType).toBe("dng");
+    expect(photo.originalUrl).toBe("signed-dng");
   });
 });

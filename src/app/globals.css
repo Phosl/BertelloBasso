@@ -4451,6 +4451,81 @@ h4 {
   position: absolute;
 }
 
+.photography-grid__format {
+  background: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 9px 11px;
+  position: absolute;
+  right: 0;
+  text-transform: uppercase;
+  top: 0;
+}
+
+.photography-grid__format:empty {
+  display: none;
+}
+
+.photography-grid__play {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  height: 66px;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 66px;
+}
+
+.photography-grid__play > span {
+  border-bottom: 10px solid transparent;
+  border-left: 16px solid var(--ink);
+  border-top: 10px solid transparent;
+  margin-left: 4px;
+}
+
+.pswp__video-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 18px 70px;
+}
+
+.pswp__video-container video {
+  background: #050505;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.pswp__video-container a {
+  color: white;
+  font-size: 13px;
+  margin-top: 12px;
+  text-decoration: underline;
+}
+
+.pswp__button--bertello-dng {
+  align-items: center;
+  color: white;
+  display: flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: center;
+  padding: 0 14px;
+  text-decoration: none;
+  width: auto;
+}
+
+.pswp__button--bertello-dng[hidden] {
+  display: none !important;
+}
+
 .pswp__bertello-caption {
   bottom: 22px;
   color: white;
@@ -5215,6 +5290,33 @@ h4 {
   left: 0;
   padding: 10px 13px;
   position: absolute;
+}
+
+.gallery-photo-card__image > .gallery-photo-card__play {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  bottom: auto;
+  display: flex;
+  height: 56px;
+  justify-content: center;
+  left: 50%;
+  padding: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px;
+}
+
+.gallery-photo-card__format {
+  background: #293124;
+  color: white;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  padding: 8px 10px;
+  position: absolute;
+  right: 0;
+  text-transform: uppercase;
+  top: 0;
 }
 
 .gallery-photo-card__content {

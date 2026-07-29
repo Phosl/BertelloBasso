@@ -2,6 +2,8 @@ import type {
   Gallery,
   GalleryPhoto,
   GalleryPhotoTranslation,
+  GalleryMediaType,
+  GallerySourceType,
   GalleryStatus,
   GalleryTranslation,
 } from "./types";
@@ -29,17 +31,32 @@ function nullableNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+function mediaType(value: unknown): GalleryMediaType {
+  return value === "video" ? "video" : "image";
+}
+
+function sourceType(value: unknown): GallerySourceType {
+  return value === "dng" ? "dng" : "standard";
+}
+
 export function mapGalleryPhoto(
   row: Row,
   signedUrls: UrlMap = new Map(),
 ): GalleryPhoto {
   const storagePath = stringValue(row.storage_path);
   const thumbnailPath = stringValue(row.thumbnail_path);
+  const originalPath = nullableString(row.original_path);
   return {
     id: stringValue(row.id),
     galleryId: stringValue(row.gallery_id),
     storagePath,
     thumbnailPath,
+    originalPath,
+    mediaType: mediaType(row.media_type),
+    sourceType: sourceType(row.source_type),
+    mimeType: stringValue(row.mime_type) || "image/webp",
+    sourceName: stringValue(row.source_name),
+    durationMs: nullableNumber(row.duration_ms),
     width: Number(row.width) || 1,
     height: Number(row.height) || 1,
     altText: stringValue(row.alt_text),
@@ -49,6 +66,7 @@ export function mapGalleryPhoto(
     createdAt: stringValue(row.created_at),
     imageUrl: signedUrls.get(storagePath) ?? "",
     thumbnailUrl: signedUrls.get(thumbnailPath) ?? "",
+    originalUrl: originalPath ? signedUrls.get(originalPath) ?? "" : "",
   };
 }
 
@@ -87,6 +105,44 @@ export function mapGallery(
 }
 
 export const gallerySelect = `
+  id,
+  slug,
+  title,
+  description,
+  translations,
+  location_name,
+  address,
+  latitude,
+  longitude,
+  google_place_id,
+  status,
+  cover_photo_id,
+  sort_order,
+  published_at,
+  created_at,
+  updated_at,
+  gallery_photos!gallery_photos_gallery_id_fkey (
+    id,
+    gallery_id,
+    storage_path,
+    thumbnail_path,
+    original_path,
+    media_type,
+    source_type,
+    mime_type,
+    source_name,
+    duration_ms,
+    width,
+    height,
+    alt_text,
+    caption,
+    translations,
+    sort_order,
+    created_at
+  )
+`;
+
+export const legacyGallerySelect = `
   id,
   slug,
   title,

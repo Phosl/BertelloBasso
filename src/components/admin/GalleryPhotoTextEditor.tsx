@@ -51,7 +51,7 @@ export function GalleryPhotoTextEditor({
         <label>
           <span>Descrizione accessibile in italiano</span>
           <small className="admin-field-help">
-            Descrivi brevemente ciò che si vede nella fotografia.
+            Descrivi brevemente ciò che si vede nella foto o nel video.
           </small>
           <input
             disabled={disabled}

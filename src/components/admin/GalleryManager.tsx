@@ -45,7 +45,7 @@ export function GalleryManager() {
         <div>
           <p className="eyebrow">Fotografie</p>
           <h1>Gallerie</h1>
-          <p>Crea, ordina e pubblica le storie fotografiche del sito.</p>
+          <p>Crea, ordina e pubblica gallerie con fotografie, DNG e video.</p>
         </div>
         {configured ? (
           <TransitionLink
@@ -70,7 +70,7 @@ export function GalleryManager() {
         <section className="gallery-admin-blocked" role="status">
           <Images aria-hidden="true" size={42} />
           <div>
-            <h2>Collega Supabase per caricare fotografie</h2>
+            <h2>Collega Supabase per caricare foto e video</h2>
             <p>
               Aggiungi le variabili Supabase in <code>.env.local</code>, applica
               la migrazione delle gallerie e poi ricarica questa pagina.
@@ -132,7 +132,7 @@ export function GalleryManager() {
                 </p>
                 <strong>
                   {gallery.photoCount}{" "}
-                  {gallery.photoCount === 1 ? "fotografia" : "fotografie"}
+                  {gallery.photoCount === 1 ? "contenuto" : "contenuti"}
                 </strong>
                 <div>
                   <TransitionLink

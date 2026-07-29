@@ -5,7 +5,7 @@ import {createClient} from "@supabase/supabase-js";
 import type {Locale} from "@/lib/i18n/config";
 import {isMissingSchemaError} from "@/lib/supabase/errors";
 import {localizeGallery} from "./localize";
-import {gallerySelect, mapGallery} from "./mapper";
+import {gallerySelect, legacyGallerySelect, mapGallery} from "./mapper";
 import {signGalleryPaths} from "./storage";
 import type {Gallery} from "./types";
 
@@ -35,23 +35,30 @@ async function queryPublishedRows(slug?: string) {
   const client = getPublicGalleryClient();
   if (!client) return [];
 
-  let query = client
-    .from("galleries")
-    .select(gallerySelect)
-    .eq("status", "published")
-    .order("sort_order")
-    .order("sort_order", {
-      referencedTable: "gallery_photos",
-    });
-  if (slug) query = query.eq("slug", slug);
+  const run = async (selection: string) => {
+    let query = client
+      .from("galleries")
+      .select(selection)
+      .eq("status", "published")
+      .order("sort_order")
+      .order("sort_order", {
+        referencedTable: "gallery_photos",
+      });
+    if (slug) query = query.eq("slug", slug);
+    return query;
+  };
 
-  const {data, error} = await query;
+  let result = await run(gallerySelect);
+  if (isMissingSchemaError(result.error)) {
+    result = await run(legacyGallerySelect);
+  }
+  const {data, error} = result;
   if (error) {
     logGalleryError("select", "galleries", error);
     return [];
   }
 
-  const rows = (data ?? []) as Array<Record<string, unknown>>;
+  const rows = (data ?? []) as unknown as Array<Record<string, unknown>>;
   const paths = rows.flatMap((row) => {
     const photos = Array.isArray(row.gallery_photos)
       ? (row.gallery_photos as Array<Record<string, unknown>>)
@@ -59,6 +66,7 @@ async function queryPublishedRows(slug?: string) {
     return photos.flatMap((photo) => [
       String(photo.storage_path ?? ""),
       String(photo.thumbnail_path ?? ""),
+      String(photo.original_path ?? ""),
     ]);
   });
 

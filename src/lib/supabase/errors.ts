@@ -53,7 +53,7 @@ export function getAdminErrorMessage(
     if (/cms_page|cms_locked/.test(error?.message ?? "")) {
       return "Prima di pubblicare completa il titolo e lascia visibile almeno una sezione obbligatoria.";
     }
-    return "Prima di pubblicare servono titolo, località, almeno una fotografia e una copertina.";
+    return "Prima di pubblicare servono titolo, località, almeno una foto o un video e una copertina.";
   }
   if (error?.message === "PRODUCT_MEDIA_LIMIT") {
     return "Puoi collegare al massimo 12 fotografie a un prodotto.";

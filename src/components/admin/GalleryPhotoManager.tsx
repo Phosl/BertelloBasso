@@ -7,12 +7,15 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
+  FileImage,
   GripVertical,
   ImagePlus,
   LoaderCircle,
+  Play,
   Star,
   Trash2,
   Upload,
+  Video,
 } from "lucide-react";
 import {
   deleteGalleryPhoto,
@@ -22,8 +25,13 @@ import {
 } from "@/lib/galleries/admin-service";
 import {
   maxGalleryPhotos,
-  processGalleryImage,
+  fileStem,
+  isDngFile,
+  isGalleryPreviewFile,
+  isVideoFile,
+  processGalleryMedia,
   validateGalleryFile,
+  validateGalleryPreviewFile,
 } from "@/lib/galleries/image-processing";
 import type {Gallery, GalleryPhoto} from "@/lib/galleries/types";
 import {getAdminErrorMessage} from "@/lib/supabase/errors";
@@ -39,6 +47,7 @@ type UploadState =
 type UploadEntry = {
   id: string;
   file: File;
+  previewFile?: File;
   state: UploadState;
   error: string;
 };
@@ -67,6 +76,8 @@ export function GalleryPhotoManager({
   onRefresh: () => Promise<void>;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const dngPreviewInputRef = useRef<HTMLInputElement>(null);
+  const previewEntryIdRef = useRef<string | null>(null);
   const [queue, setQueue] = useState<UploadEntry[]>([]);
   const [notice, setNotice] = useState("");
   const [dropActive, setDropActive] = useState(false);
@@ -87,7 +98,10 @@ export function GalleryPhotoManager({
   ) {
     try {
       updateQueue(entry.id, {state: "processing", error: ""});
-      const processed = await processGalleryImage(entry.file);
+      const processed = await processGalleryMedia(
+        entry.file,
+        entry.previewFile,
+      );
       updateQueue(entry.id, {state: "uploading"});
       const photo = await uploadGalleryPhoto(gallery, processed, {
         sortOrder,
@@ -97,11 +111,10 @@ export function GalleryPhotoManager({
       return photo;
     } catch (error) {
       const message =
-        error instanceof Error && error.message.startsWith("Formato")
+        error instanceof Error &&
+        /Formato|MB|DNG|video|anteprima|browser|dimensioni/i.test(error.message)
           ? error.message
-          : error instanceof Error && error.message.includes("25 MB")
-            ? error.message
-            : getAdminErrorMessage(error as Error);
+          : getAdminErrorMessage(error as Error);
       updateQueue(entry.id, {state: "error", error: message});
       return null;
     }
@@ -111,21 +124,46 @@ export function GalleryPhotoManager({
     if (disabled || working) return;
     setNotice("");
     const files = Array.from(fileList);
+    const dngFiles = files.filter(isDngFile);
+    const previewsUsedByDng = new Set<File>();
+    const dngPreviews = new Map<File, File>();
+
+    for (const dng of dngFiles) {
+      const preview = files.find(
+        (candidate) =>
+          candidate !== dng &&
+          !previewsUsedByDng.has(candidate) &&
+          isGalleryPreviewFile(candidate) &&
+          fileStem(candidate) === fileStem(dng),
+      );
+      if (preview) {
+        previewsUsedByDng.add(preview);
+        dngPreviews.set(dng, preview);
+      }
+    }
+
+    const sourceFiles = files.filter((file) => !previewsUsedByDng.has(file));
     const remaining = maxGalleryPhotos - gallery.photos.length;
-    if (files.length > remaining) {
+    if (sourceFiles.length > remaining) {
       setNotice(
         `Puoi aggiungere ancora ${remaining} ${
-          remaining === 1 ? "fotografia" : "fotografie"
+          remaining === 1 ? "contenuto" : "contenuti"
         }.`,
       );
       return;
     }
 
-    const entries = files.map<UploadEntry>((file) => {
-      const validationError = validateGalleryFile(file);
+    const entries = sourceFiles.map<UploadEntry>((file) => {
+      const previewFile = dngPreviews.get(file);
+      const validationError =
+        validateGalleryFile(file) ||
+        (isDngFile(file) && !previewFile
+          ? "Per il DNG scegli anche un JPG di anteprima con lo stesso nome."
+          : "");
       return {
         id: crypto.randomUUID(),
         file,
+        previewFile,
         state: validationError ? "error" : "waiting",
         error: validationError,
       };
@@ -165,6 +203,22 @@ export function GalleryPhotoManager({
     }
     await onRefresh();
     setWorking(false);
+  }
+
+  async function chooseDngPreview(entry: UploadEntry, preview: File) {
+    const previewError = validateGalleryPreviewFile(preview);
+    if (previewError) {
+      updateQueue(entry.id, {state: "error", error: previewError});
+      return;
+    }
+    const patched = {
+      ...entry,
+      previewFile: preview,
+      state: "waiting" as const,
+      error: "",
+    };
+    updateQueue(entry.id, patched);
+    await retry(patched);
   }
 
   async function retry(entry: UploadEntry) {
@@ -231,7 +285,7 @@ export function GalleryPhotoManager({
     if (
       disabled ||
       !window.confirm(
-        "Vuoi eliminare questa fotografia? L’operazione non può essere annullata.",
+        "Vuoi eliminare questo contenuto? L’operazione non può essere annullata.",
       )
     ) {
       return;
@@ -254,10 +308,11 @@ export function GalleryPhotoManager({
         <div>
           <span>3</span>
           <div>
-            <h2>Fotografie</h2>
+            <h2>Foto e video</h2>
             <p>
-              Trascina o carica più foto insieme. La prima diventa la copertina,
-              ma puoi cambiarla.
+              Trascina o carica più file insieme. Foto, video e DNG possono
+              essere riordinati nello stesso racconto; il primo diventa la
+              copertina.
             </p>
           </div>
         </div>
@@ -267,7 +322,7 @@ export function GalleryPhotoManager({
       {disabled ? (
         <div className="gallery-editor-warning">
           La galleria è {gallery.status === "published" ? "online" : "archiviata"}.
-          Riportala in bozza per modificare le fotografie.
+          Riportala in bozza per modificare foto e video.
         </div>
       ) : null}
 
@@ -288,18 +343,21 @@ export function GalleryPhotoManager({
         }}
       >
         <Upload aria-hidden="true" size={38} />
-        <h3>Trascina o carica foto</h3>
-        <p>JPG, PNG, WebP o HEIC · massimo 25 MB ciascuna</p>
+        <h3>Trascina o carica foto e video</h3>
+        <p>
+          Foto fino a 25 MB · DNG e video fino a 50 MB · per un DNG seleziona
+          anche il JPG con lo stesso nome
+        </p>
         <button
           disabled={disabled || working || gallery.photos.length >= 50}
           onClick={() => inputRef.current?.click()}
           type="button"
         >
           <ImagePlus aria-hidden="true" size={23} />
-          Carica foto
+          Scegli foto o video
         </button>
         <input
-          accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
+          accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.dng,.mp4,.m4v,.mov,.webm,image/jpeg,image/png,image/webp,image/heic,image/heif,image/dng,image/x-adobe-dng,video/mp4,video/quicktime,video/webm"
           disabled={disabled}
           hidden
           multiple
@@ -308,6 +366,19 @@ export function GalleryPhotoManager({
             event.target.value = "";
           }}
           ref={inputRef}
+          type="file"
+        />
+        <input
+          accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
+          hidden
+          onChange={(event) => {
+            const entryId = previewEntryIdRef.current;
+            const preview = event.target.files?.[0];
+            const entry = queue.find((item) => item.id === entryId);
+            if (entry && preview) void chooseDngPreview(entry, preview);
+            event.target.value = "";
+          }}
+          ref={dngPreviewInputRef}
           type="file"
         />
       </div>
@@ -322,6 +393,10 @@ export function GalleryPhotoManager({
                   <Check aria-hidden="true" size={20} />
                 ) : entry.state === "error" ? (
                   <span aria-hidden="true">!</span>
+                ) : isVideoFile(entry.file) ? (
+                  <Video aria-hidden="true" size={20} />
+                ) : isDngFile(entry.file) ? (
+                  <FileImage aria-hidden="true" size={20} />
                 ) : (
                   <LoaderCircle
                     aria-hidden="true"
@@ -337,7 +412,18 @@ export function GalleryPhotoManager({
                   <span style={{width: `${progress[entry.state]}%`}} />
                 </i>
               </div>
-              {entry.state === "error" ? (
+              {entry.state === "error" && isDngFile(entry.file) && !entry.previewFile ? (
+                <button
+                  disabled={working}
+                  onClick={() => {
+                    previewEntryIdRef.current = entry.id;
+                    dngPreviewInputRef.current?.click();
+                  }}
+                  type="button"
+                >
+                  Scegli JPG
+                </button>
+              ) : entry.state === "error" ? (
                 <button
                   disabled={working || Boolean(validateGalleryFile(entry.file))}
                   onClick={() => void retry(entry)}
@@ -373,6 +459,21 @@ export function GalleryPhotoManager({
                   src={photo.thumbnailUrl}
                   width={photo.width}
                 />
+                {photo.mediaType === "video" ? (
+                  <span
+                    aria-label="Video"
+                    className="gallery-photo-card__play"
+                  >
+                    <Play aria-hidden="true" fill="currentColor" size={24} />
+                  </span>
+                ) : null}
+                <strong className="gallery-photo-card__format">
+                  {photo.mediaType === "video"
+                    ? "Video"
+                    : photo.sourceType === "dng"
+                      ? "DNG"
+                      : "Foto"}
+                </strong>
                 <span>{String(index + 1).padStart(2, "0")}</span>
               </div>
               <div className="gallery-photo-card__content">
@@ -423,7 +524,7 @@ export function GalleryPhotoManager({
                     type="button"
                   >
                     <Trash2 aria-hidden="true" size={19} />
-                    Elimina fotografia
+                      Elimina contenuto
                   </button>
                 </div>
                 <GalleryPhotoTextEditor disabled={disabled} photo={photo} />
