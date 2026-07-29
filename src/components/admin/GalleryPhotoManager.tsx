@@ -256,7 +256,7 @@ export function GalleryPhotoManager({
           <div>
             <h2>Fotografie</h2>
             <p>
-              Trascina qui più file insieme. La prima foto diventa la copertina,
+              Trascina o carica più foto insieme. La prima diventa la copertina,
               ma puoi cambiarla.
             </p>
           </div>
@@ -288,7 +288,7 @@ export function GalleryPhotoManager({
         }}
       >
         <Upload aria-hidden="true" size={38} />
-        <h3>Trascina qui le fotografie</h3>
+        <h3>Trascina o carica foto</h3>
         <p>JPG, PNG, WebP o HEIC · massimo 25 MB ciascuna</p>
         <button
           disabled={disabled || working || gallery.photos.length >= 50}
@@ -296,7 +296,7 @@ export function GalleryPhotoManager({
           type="button"
         >
           <ImagePlus aria-hidden="true" size={23} />
-          Scegli fotografie
+          Carica foto
         </button>
         <input
           accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
